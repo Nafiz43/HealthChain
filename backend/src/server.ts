@@ -60,12 +60,12 @@ app.post('/signup', async (req: Request, res: Response) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    
+    console.log(username, email, password)
     try {
       const newUser = createNewUser(username,email,password);
   
       // await newUser.save();
-      res.status(201).send({ message: 'User signed up successfully! Your Public Key is: '+ publicKey+'\n Use the public key and password to login to the system' });
+      res.status(201).send({ message: 'User signed up successfully! Your Public Key is: '+ publicKey+'\nUse the public key and password to login to the system' });
     } catch (error) {
       res.status(500).send({ message: 'Error signing up user', error });
     }
