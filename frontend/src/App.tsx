@@ -60,7 +60,7 @@
 
 
 import React from 'react';
-import PatientIndex from './components/doctor_index'; // Import Patient Dashboard component
+import PatientIndex from './components/admin_index'; // Import Patient Dashboard component
 import './styles/app.css';  // Import the CSS for styling
 
 function App() {

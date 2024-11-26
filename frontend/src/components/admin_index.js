@@ -10,7 +10,9 @@ const AdminIndex = () => {
     setActivePage(page); // Change the active page
   };
 
-
+  let welcome = (
+    <h2>Welcome to Admin Dashboard</h2>
+  )
     
   let updateProfile_ = (
     <div style={{ width: '60%' }}>
@@ -41,16 +43,126 @@ const AdminIndex = () => {
     </div>
   );
 
+  let ViewPatientInfo = (
+    <div>
+      <h2>View Patients Info</h2>
+      <table className="table table-striped" style={{ width: '100%' }}>
+        <thead>
+          <tr>
+            <th>UserName</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Public Key</th>
+            <th>Entry Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>JohnDoe123</td>
+            <td>johndoe@example.com</td>
+            <td>(123) 456-7890</td>
+            <td>abcd1234xyz5678</td>
+            <td>2024-11-25</td>
+          </tr>
+          <tr>
+            <td>JaneSmith456</td>
+            <td>janesmith@example.com</td>
+            <td>(987) 654-3210</td>
+            <td>wxyz9876abcd5432</td>
+            <td>2024-11-20</td>
+          </tr>
+          <tr>
+            <td>MikeBrown789</td>
+            <td>mikebrown@example.com</td>
+            <td>(555) 123-4567</td>
+            <td>efgh6789ijkl0123</td>
+            <td>2024-11-22</td>
+          </tr>
+          <tr>
+            <td>AliceGreen321</td>
+            <td>alicegreen@example.com</td>
+            <td>(444) 555-6666</td>
+            <td>ijkl3456mnop6789</td>
+            <td>2024-11-23</td>
+          </tr>
+          <tr>
+            <td>CharlieWhite654</td>
+            <td>charliewhite@example.com</td>
+            <td>(222) 333-4444</td>
+            <td>mnop4567qrst9012</td>
+            <td>2024-11-21</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
   
+
+  let ViewDoctorInfo = (
+    <div>
+      <h2>View Doctors Info</h2>
+      <table className="table table-striped" style={{ width: '100%' }}>
+        <thead>
+          <tr>
+            <th>UserName</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Public Key</th>
+            <th>Entry Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>JohnDoe123</td>
+            <td>johndoe@example.com</td>
+            <td>(123) 456-7890</td>
+            <td>abcd1234xyz5678</td>
+            <td>2024-11-25</td>
+          </tr>
+          <tr>
+            <td>JaneSmith456</td>
+            <td>janesmith@example.com</td>
+            <td>(987) 654-3210</td>
+            <td>wxyz9876abcd5432</td>
+            <td>2024-11-20</td>
+          </tr>
+          <tr>
+            <td>MikeBrown789</td>
+            <td>mikebrown@example.com</td>
+            <td>(555) 123-4567</td>
+            <td>efgh6789ijkl0123</td>
+            <td>2024-11-22</td>
+          </tr>
+          <tr>
+            <td>AliceGreen321</td>
+            <td>alicegreen@example.com</td>
+            <td>(444) 555-6666</td>
+            <td>ijkl3456mnop6789</td>
+            <td>2024-11-23</td>
+          </tr>
+          <tr>
+            <td>CharlieWhite654</td>
+            <td>charliewhite@example.com</td>
+            <td>(222) 333-4444</td>
+            <td>mnop4567qrst9012</td>
+            <td>2024-11-21</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+  
+
+
   const renderContent = () => {
     // Render content based on active page
     switch (activePage) {
       case 'Dashboard':
-        return <h2>Welcome to Admin Dashboard</h2>;
+        return welcome;
       case 'ViewPatients':
-        return <h2>View Patients Page</h2>;
+        return ViewPatientInfo;
       case 'ViewDoctors':
-        return <h2>View Doctors Page</h2>;
+        return ViewDoctorInfo;
       case 'UpdateProfile':
         return updateProfile_;
       default:
