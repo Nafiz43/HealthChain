@@ -1,0 +1,96 @@
+/* General Layout */
+.patient-dashboard {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .top-navbar {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .app-name {
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+  
+  .logout-button {
+    background-color: #FF5722; /* Orange shade */
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 25px; /* Rounded button */
+    cursor: pointer;
+    font-size: 1em;
+    width: 100px;
+    transition: background-color 0.3s;
+  }
+  
+  .logout-button:hover {
+    background-color: #FF3D00; /* Darker shade */
+  }
+  
+  /* Main Content Area */
+  .main-content {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+  }
+  
+  /* Sidebar Styling */
+  .sidebar {
+    width: 250px;
+    background-color: #81C784; /* Light green */
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .sidebar li {
+    padding: 12px;
+    cursor: pointer;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    border-radius: 25px; /* Rounded corners */
+    text-align: center;
+    transition: background-color 0.3s, transform 0.3s;
+  }
+  
+  .sidebar li:hover {
+    background-color: #66BB6A; /* Slightly darker green */
+    transform: scale(1.05);
+  }
+  
+  .sidebar li.active {
+    background-color: #388E3C; /* Darker green */
+  }
+  
+  /* Content Area Styling */
+  .content-area {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .content-area h2 {
+    font-size: 2em;
+    color: #333;
+  }
+  
