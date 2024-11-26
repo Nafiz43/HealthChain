@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
 import '../styles/app.css'; // Import the CSS file
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const Signup = () => {
 
   const [message, setMessage] = useState('');
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Track button state
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -39,7 +41,11 @@ const Signup = () => {
       });
 
       const data = await response.json();
+      console.log(data)
       setMessage(data.message);
+      if(response.ok) {
+        navigate('/login', { state: { message: data.message, publicKey: data.publicKey } })
+      }
     } catch (error) {
       setMessage('Sign Up Error');
     }

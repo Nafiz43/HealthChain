@@ -61,6 +61,20 @@ app.post('/signup', async (req: Request, res: Response) => {
     const password = req.body.password;
 
     console.log(username, email, password)
+    try{
+      const newUser = createNewUser(username,email,password);
+      console.log(newUser)
+      res.status(201).send({
+        message: "User signed up successfully!",
+        publicKey: publicKey
+      })
+    } catch (err) {
+      console.log(err)
+      res.status(500).send({
+        message: "Sign Up failed"
+      })
+    }
+
     //Database Connection code goes here
 
     // try {

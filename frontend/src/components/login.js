@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
-
+import { useLocation } from 'react-router-dom';
 import '../styles/app.css'; // Import the CSS file
 
 const Login = () => {
@@ -13,6 +13,13 @@ const Login = () => {
   });
 
   const [message, setMessage] = useState('');
+  const location = useLocation();
+  let msg;
+  let pubKey;
+  if(location.state) {
+    msg = location.state.message ;
+    pubKey = location.state.publicKey;
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,6 +52,12 @@ const Login = () => {
   return (
     
     <div className="login-container">
+      {msg && pubKey && (
+        <div>
+          <h3>{msg}</h3>
+          <h3>You public key is : {pubKey}</h3>
+        </div>
+      )}
       <nav className="navbar"><div className="navbar-brand">EduHealthChain</div></nav>
       <div className="login-form">
         <center><h2>Login</h2></center>

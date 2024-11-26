@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
+
 import '../styles/dashboard.css';
 
 const AdminIndex = () => {
