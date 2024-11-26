@@ -10,6 +10,42 @@ const DoctorIndex = () => {
     setActivePage(page); // Change the active page
   };
 
+
+
+    
+  let updateProfile_ = (
+    <div style={{ width: '60%' }}>
+      <h2>Update Profile</h2>
+      <form>
+        <div className="form-group">
+          <label htmlFor="fullName">Full Name</label>
+          <input type="text" className="form-control" id="fullName" placeholder="Enter your full name" />
+        </div>
+        <div className="form-group">
+          <label htmlFor="dob">Date of Birth</label>
+          <input type="date" className="form-control" id="dob" />
+        </div>
+        <div className="form-group">
+          <label htmlFor="ssn">SSN</label>
+          <input type="text" className="form-control" id="ssn" placeholder="Enter your SSN" />
+        </div>
+        <div className="form-group">
+          <label htmlFor="phoneNumber">Phone Number</label>
+          <input type="text" className="form-control" id="phoneNumber" placeholder="Enter your phone number" />
+        </div>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input type="email" className="form-control" id="email" placeholder="Enter your email" />
+        </div>
+        <button type="submit" className="btn btn-primary">Update Profile</button>
+      </form>
+    </div>
+  );
+  
+
+
+  
+
   const renderContent = () => {
     // Render content based on active page
     switch (activePage) {
@@ -24,7 +60,7 @@ const DoctorIndex = () => {
       case 'View Patients':
         return <h2>View Patients Page</h2>;
       case 'UpdateProfile':
-        return <h2>Update Patients Page</h2>;
+        return updateProfile_;
       default:
         return <h2>Welcome to Patient Dashboard</h2>;
     }

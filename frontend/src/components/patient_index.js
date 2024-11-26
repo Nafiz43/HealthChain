@@ -62,18 +62,205 @@ const PatientIndex = () => {
       </form>
     </div>
   );
-  
+
   let ViewAppointment = (
-    <h2>View Appointments Page</h2>
-  )
+    <div style={{ marginLeft: '-30%' }}> 
+      <center style={{ marginLeft: '30%' }}><h2>Your Appointments</h2></center>
+      <table className="table table-striped"  style={{ width: '160%' }}>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Doctor</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2024-11-27</td>
+            <td>10:00 AM</td>
+            <td>Dr. John Smith</td>
+            <td className="text-success">Approved</td>
+          </tr>
+          <tr>
+            <td>2024-11-28</td>
+            <td>11:30 AM</td>
+            <td>Dr. Jane Doe</td>
+            <td className="text-warning">Pending</td>
+          </tr>
+          <tr>
+            <td>2024-12-01</td>
+            <td>09:00 AM</td>
+            <td>Dr. Richard Miles</td>
+            <td className="text-success">Approved</td>
+          </tr>
+          <tr>
+            <td>2024-12-02</td>
+            <td>03:15 PM</td>
+            <td>Dr. Clara Taylor</td>
+            <td className="text-warning">Pending</td>
+          </tr>
+          <tr>
+            <td>2024-12-03</td>
+            <td>01:00 PM</td>
+            <td>Dr. Emily Watson</td>
+            <td className="text-success">Approved</td>
+          </tr>
+          <tr>
+            <td>2024-12-04</td>
+            <td>11:45 AM</td>
+            <td>Dr. Michael Brown</td>
+            <td className="text-warning">Pending</td>
+          </tr>
+          <tr>
+            <td>2024-12-05</td>
+            <td>08:30 AM</td>
+            <td>Dr. Sophie Adams</td>
+            <td className="text-success">Approved</td>
+          </tr>
+          <tr>
+            <td>2024-12-06</td>
+            <td>04:00 PM</td>
+            <td>Dr. George Collins</td>
+            <td className="text-warning">Pending</td>
+          </tr>
+          <tr>
+            <td>2024-12-07</td>
+            <td>02:20 PM</td>
+            <td>Dr. Nancy Carter</td>
+            <td className="text-success">Approved</td>
+          </tr>
+          <tr>
+            <td>2024-12-08</td>
+            <td>10:10 AM</td>
+            <td>Dr. William Harris</td>
+            <td className="text-warning">Pending</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+
+  
 
   let viewMedication = (
-    <h2>View Medications Page</h2>
-  )
-
-  // let updateProfile_ = (
-  //   <h2>Update Profile Page</h2>
-  // )
+    <div>
+      <center><h2>Medications</h2></center>
+      <table className="table table-striped" style={{ width: '100%' }}>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Prescribed Medicine</th>
+            <th>Dosage Info</th>
+            <th>Doctor Name</th>
+            <th>Usage Guide</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2024-11-25</td>
+            <td>Amoxicillin</td>
+            <td>500mg, Twice a Day</td>
+            <td>Dr. John Smith</td>
+            <td>Take after meals with a glass of water. Avoid dairy products.</td>
+          </tr>
+          <tr>
+            <td>2024-11-24</td>
+            <td>Ibuprofen</td>
+            <td>200mg, As Needed</td>
+            <td>Dr. Jane Doe</td>
+            <td>Use for pain relief. Do not exceed 3 doses in 24 hours.</td>
+          </tr>
+          <tr>
+            <td>2024-11-23</td>
+            <td>Metformin</td>
+            <td>850mg, Once a Day</td>
+            <td>Dr. Emily White</td>
+            <td>Take with breakfast to reduce stomach upset. Monitor blood sugar regularly.</td>
+          </tr>
+          <tr>
+            <td>2024-11-22</td>
+            <td>Lisinopril</td>
+            <td>10mg, Once a Day</td>
+            <td>Dr. Adam Brown</td>
+            <td>Take at the same time daily. Avoid potassium-rich foods.</td>
+          </tr>
+          <tr>
+            <td>2024-11-21</td>
+            <td>Simvastatin</td>
+            <td>40mg, Before Bedtime</td>
+            <td>Dr. Sarah Taylor</td>
+            <td>Take in the evening for maximum effectiveness. Avoid grapefruit.</td>
+          </tr>
+          <tr>
+            <td>2024-11-20</td>
+            <td>Albuterol</td>
+            <td>2 Puffs, As Needed</td>
+            <td>Dr. Paul Green</td>
+            <td>Shake well before use. Wait 1 minute between puffs.</td>
+          </tr>
+          <tr>
+            <td>2024-11-19</td>
+            <td>Prednisone</td>
+            <td>5mg, Taper Dose</td>
+            <td>Dr. John Smith</td>
+            <td>Follow the prescribed taper schedule to avoid withdrawal symptoms.</td>
+          </tr>
+          <tr>
+            <td>2024-11-18</td>
+            <td>Atorvastatin</td>
+            <td>20mg, Once a Day</td>
+            <td>Dr. Jane Doe</td>
+            <td>Take with or without food. Regular liver function tests recommended.</td>
+          </tr>
+          <tr>
+            <td>2024-11-17</td>
+            <td>Hydrochlorothiazide</td>
+            <td>25mg, Morning</td>
+            <td>Dr. Emily White</td>
+            <td>Take in the morning to avoid nighttime urination.</td>
+          </tr>
+          <tr>
+            <td>2024-11-16</td>
+            <td>Azithromycin</td>
+            <td>500mg, Once a Day</td>
+            <td>Dr. Adam Brown</td>
+            <td>Complete the full course even if symptoms improve.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+  
+  let updateProfile_ = (
+    <div style={{ width: '60%' }}>
+      <h2>Update Profile</h2>
+      <form>
+        <div className="form-group">
+          <label htmlFor="fullName">Full Name</label>
+          <input type="text" className="form-control" id="fullName" placeholder="Enter your full name" />
+        </div>
+        <div className="form-group">
+          <label htmlFor="dob">Date of Birth</label>
+          <input type="date" className="form-control" id="dob" />
+        </div>
+        <div className="form-group">
+          <label htmlFor="ssn">SSN</label>
+          <input type="text" className="form-control" id="ssn" placeholder="Enter your SSN" />
+        </div>
+        <div className="form-group">
+          <label htmlFor="phoneNumber">Phone Number</label>
+          <input type="text" className="form-control" id="phoneNumber" placeholder="Enter your phone number" />
+        </div>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input type="email" className="form-control" id="email" placeholder="Enter your email" />
+        </div>
+        <button type="submit" className="btn btn-primary">Update Profile</button>
+      </form>
+    </div>
+  );
+  
 
   const renderContent = () => {
     // Render content based on active page
@@ -87,7 +274,7 @@ const PatientIndex = () => {
       case 'ViewMedications':
         return viewMedication;
       case 'UpdateProfile':
-        return <h2>Update Profile Page</h2>;
+        return updateProfile_;
       default:
         return welcome;
     }
