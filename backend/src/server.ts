@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express';
 import { ResilientDB, FetchClient } from 'resilientdb-javascript-sdk';
 import cors from 'cors';
+import bodyParser from 'body-parser';
+
 
 const app = express();
 const port = 5050;
@@ -8,6 +10,8 @@ const port = 5050;
 app.use(cors());
 //app.use(cors());  // This allows requests from all origins
 app.use(express.json());
+app.use(bodyParser.json());
+
 
 const { publicKey, privateKey } = ResilientDB.generateKeys();
 const resilientDBClient = new ResilientDB("http://localhost:8000", new FetchClient());
@@ -176,7 +180,7 @@ app.post('/login', async (req: Request, res: Response) => {
     // }
 
     res.status(201).send({
-      message: "Admin"
+      message: "Patient"
     })
 
 
@@ -189,4 +193,29 @@ app.get('/', (req: Request, res: Response) => {
 
 app.listen(port, () => {
   console.log(`Backend is running at http://localhost:${port}`);
+});
+
+
+
+app.post('/bookAppointment', (req, res) => {
+  const appointment = req.body; // Example { date, time, doctor, reason }
+  console.log(req.body)
+  // Add logic to store the appointment in the database
+  res.json({ message: 'Appointment booked successfully!' });
+});
+
+app.get('/api/viewAppointments', (req, res) => {
+  // Fetch appointments from the database
+  res.json({ appointments: [{ date: '2024-11-30', time: '10:00 AM', doctor: 'Dr. Smith', status: 'Confirmed' }] });
+});
+
+app.get('/api/viewMedications', (req, res) => {
+  // Fetch medications from the database
+  res.json({ medications: [{ date: '2024-11-01', medicine: 'Paracetamol', dosage: '500mg', doctor: 'Dr. Lee', usageGuide: 'Twice a day' }] });
+});
+
+app.put('/api/updateProfile', (req, res) => {
+  const updatedProfile = req.body; // Example { fullName, dob, ssn, phoneNumber, email }
+  // Update the profile in the database
+  res.json({ message: 'Profile updated successfully!' });
 });
