@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
-import { useLocation } from 'react-router-dom';
+import { useLocation,useNavigate } from 'react-router-dom';
 import '../styles/app.css'; // Import the CSS file
 
 const Login = () => {
@@ -13,6 +13,8 @@ const Login = () => {
   });
 
   const [message, setMessage] = useState('');
+  const navigate = useNavigate()
+
   const location = useLocation();
   let msg;
   let pubKey;
@@ -44,6 +46,22 @@ const Login = () => {
 
       const data = await response.json();
       setMessage(data.message);
+      console.log(data)
+
+      if(data.message === "Patient")
+      {
+        navigate('/patient_index')
+
+      }
+      else if(data.message === "Doctor")
+        {
+          navigate('/doctor_index')
+        }
+      else{
+        navigate('/admin_index')
+      }
+      
+
     } catch (error) {
       setMessage('Error logging in');
     }

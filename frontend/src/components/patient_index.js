@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
+import Logout  from './logout';
 
 import '../styles/dashboard.css';
+
+
+
 
 const PatientIndex = () => {
   const [activePage, setActivePage] = useState('Dashboard'); // Default page
@@ -9,6 +13,40 @@ const PatientIndex = () => {
   const handleNavigation = (page) => {
     setActivePage(page); // Change the active page
   };
+
+
+  
+
+  // const ViewAppointment_c = async (page, e) => {
+  //   if (e) {
+  //     e.preventDefault(); // Prevent default event behavior
+  //   }
+  
+  //   setActivePage(page); // Change the active page
+  
+  //   // Send POST request to backend
+  //   try {
+  //     const response = await fetch('http://localhost:5050/patient_view_appointment', {
+  //       method: 'GET',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: {publicKey: "DjQC7eyVayy7VwUhFjU18oxdRuejXE7DDdYkeDyD8tMS"}
+  //     });
+  
+  //     const data = await response.json();
+  //     setMessage(data.message);
+  //     console.log(data);
+  
+
+  //   } catch (error) {
+  //     setMessage('Error');
+  //   }
+  // };
+
+  
+
+
 
   let welcome = (
     <h2>Welcome to Patient Dashboard</h2>
@@ -285,7 +323,7 @@ const PatientIndex = () => {
       {/* Top Navigation Bar */}
       <div className="top-navbar">
         <div className="app-name">EduHealthChain</div>
-        <button className="logout-button">Logout</button>
+          <Logout/>
       </div>
       
       {/* Main Content Section */}

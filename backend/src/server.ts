@@ -12,32 +12,43 @@ app.use(express.json());
 const { publicKey, privateKey } = ResilientDB.generateKeys();
 const resilientDBClient = new ResilientDB("http://localhost:8000", new FetchClient());
 
-async function createNewUser(username:string, email:string, Password: string) {
+
+async function getAll() {
+  try {
+      // If filter is required, pass an empty object or specific filter criteria.
+      const transactions = await resilientDBClient.getAllTransactions();
+      // console.log('All Transactions:', transactions);
+      return transactions
+
+    } catch (error) {
+      console.error('Error fetching all transactions:', JSON.stringify(error, null, 2));
+  }
+}
+
+async function createNewUser(username:string, email:string, password: string, role:string) {
     const transactionData = {
         operation: "CREATE",
-        amount: 5000,
+        amount: 1010,
         signerPublicKey: publicKey,
         signerPrivateKey: privateKey,
-        recipientPublicKey: publicKey, // For the sake of example, sending to self
+        recipientPublicKey: publicKey, 
         asset: {
-          message: "Initial transaction",
-          email: email,     // Add email to asset
-          password: Password, // Add password to asset
-          UserName: username
+          message: "SIGN-Up",
+          email: email,     
+          password: password, 
+          username: username,
+          role : role
         }
-      };
-    
+      }; 
     const transaction = await resilientDBClient.postTransaction(transactionData);
     console.log('Transaction posted:', transaction);
     
-    return transaction.id; // We'll need the transaction ID to update it next
+    return transaction.id; 
 }
 
-
-async function getUserInfo(PublicKey: string, password: string) {
+async function getUserInfo(PublicKey: string) {
     const filter = {
-      ownerPublicKey: PublicKey,
-      Password: password
+      ownerPublicKey: PublicKey
       // recipientPublicKey can also be specified here.
     };
     const transactions = await resilientDBClient.getFilteredTransactions(filter);
@@ -53,27 +64,62 @@ async function getUserInfo(PublicKey: string, password: string) {
 
 
 app.post('/signup', async (req: Request, res: Response) => {
-    //const resilientDBClient = new ResilientDB("http://localhost:8000", new FetchClient());
-    //const { username, email, password } = req.body;
-    // console.log('jjjj ', JSON.stringify(req.body))
     const username = req.body.username;
     const email = req.body.email;
     const password = req.body.password;
+    const role = req.body.role;
 
-    console.log(username, email, password)
-    try{
-      const newUser = createNewUser(username,email,password);
+
+
+    console.log(username, email, password, role)
+
+    let allTransactions = await resilientDBClient.getAllTransactions();
+    console.log(allTransactions.length)
+
+    let flag = 0;
+    let i = 0;
+    for(i = 0; i < allTransactions.length; i++) {
+        let tx = allTransactions[i];
+        if (tx.asset) {
+           let tx_asset = tx.asset.replace(/'/g, '"')
+           let json_tx_asset = JSON.parse(tx_asset)
+           console.log(json_tx_asset.data.username)
+           if(json_tx_asset.data.username == username) {
+              console.log('user name found');
+              flag = 1;
+              break;
+           }
+        }
+    }
+    console.log('flag ', flag)
+    if(flag == 0) {
+      const newUser = createNewUser(username,email,password, role);
       console.log(newUser)
       res.status(201).send({
-        message: "User signed up successfully!",
-        publicKey: publicKey
-      })
-    } catch (err) {
-      console.log(err)
-      res.status(500).send({
-        message: "Sign Up failed"
+          message: "User signed up successfully!",
+          publicKey: publicKey
       })
     }
+    else {
+      try{
+        console.log('user found in the system')
+        res.status(201).send({
+          message: "User name existed, Please try a new user name",
+          publicKey: "xxx"
+        })
+      } catch (err) {
+        console.log(err)
+      }
+    }
+
+
+
+    // const newUser = await createNewUser(username,email,password, role);
+    // console.log(newUser)
+    // res.status(201).send({
+    //   message: "User signed up successfully!",
+    //   publicKey: publicKey
+    // })
 
     //Database Connection code goes here
 
@@ -87,6 +133,34 @@ app.post('/signup', async (req: Request, res: Response) => {
     // }
 
   });
+
+
+
+
+app.post('/logout', async (req: Request, res: Response) => {
+  res.status(201).send({
+    message: "Logged Out Successfully!"
+  })
+  });
+
+app.post('/patient_index', async (req: Request, res: Response) => {
+    res.status(201).send({
+      message: "Patient Dashboard!"
+    })
+    });
+    
+
+app.post('/doctor_index', async (req: Request, res: Response) => {
+    res.status(201).send({
+      message: "Doctor Dashboard!"
+    })
+    });
+
+app.post('/admin_index', async (req: Request, res: Response) => {
+      res.status(201).send({
+        message: "Admin Dashboard!"
+      })
+      });
 
 
 app.post('/login', async (req: Request, res: Response) => {
@@ -107,6 +181,12 @@ app.post('/login', async (req: Request, res: Response) => {
     // } catch (error) {
     //   res.status(500).send({ message: 'LOG-IN Failed', error });
     // }
+
+    res.status(201).send({
+      message: "Admin"
+    })
+
+
     console.log("logInSuccesful")
   });
 

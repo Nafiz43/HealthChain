@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
+import Logout  from './logout';
 
 import '../styles/dashboard.css';
 
@@ -175,8 +176,8 @@ const AdminIndex = () => {
       {/* Top Navigation Bar */}
       <div className="top-navbar">
         <div className="app-name">EduHealthChain</div>
-        <button className="logout-button">Logout</button>
-      </div>
+        <Logout/>
+        </div>
       
       {/* Main Content Section */}
       <div className="main-content">
