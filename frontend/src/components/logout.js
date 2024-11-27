@@ -50,7 +50,9 @@ const navigate = useNavigate()
       setMessage(data.message);
       if(response.ok)
       {
-        navigate('/login')
+        navigate('/')
+        window.location.reload();
+
       }
     } catch (error) {
       setMessage('Error logging in');

@@ -36,10 +36,10 @@ function App() {
         </Routes>
 
          {/* Conditional rendering of Login or Signup */}
-      {/* <button onClick={toggleForm}>
+      <button onClick={toggleForm}>
         {isLogin ? 'Need an account? Signup' : 'Already have an account? Login'}
       </button>
-      {isLogin ? <Login /> : <Signup />} */}
+      {isLogin ? <Login /> : <Signup />}
 
       </div>
     </Router>
@@ -60,9 +60,9 @@ function Home() {
 
   return (
     <div>
-      <button onClick={() => navigate('/signup')}>Need an account? Signup</button>
+      {/* <button onClick={() => navigate('/signup')}>Need an account? Signup</button>
       <button onClick={() => navigate('/login')}>Already have an account? Login</button>
-      <Signup />
+      <Signup /> */}
     </div>
   );
 }
