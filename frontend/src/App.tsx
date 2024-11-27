@@ -34,6 +34,13 @@ function App() {
           <Route path="/doctor_index" element={<Doctor_index/>} />
           <Route path="/admin_index" element={<Admin_index/>} />
         </Routes>
+
+         {/* Conditional rendering of Login or Signup */}
+      {/* <button onClick={toggleForm}>
+        {isLogin ? 'Need an account? Signup' : 'Already have an account? Login'}
+      </button>
+      {isLogin ? <Login /> : <Signup />} */}
+
       </div>
     </Router>
   );
@@ -53,7 +60,6 @@ function Home() {
 
   return (
     <div>
-      {/* <h1>Welcome to EduHealthChain</h1> */}
       <button onClick={() => navigate('/signup')}>Need an account? Signup</button>
       <button onClick={() => navigate('/login')}>Already have an account? Login</button>
       <Signup />

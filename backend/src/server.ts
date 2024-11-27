@@ -13,38 +13,32 @@ const { publicKey, privateKey } = ResilientDB.generateKeys();
 const resilientDBClient = new ResilientDB("http://localhost:8000", new FetchClient());
 
 
-async function getAll() {
-  try {
-      // If filter is required, pass an empty object or specific filter criteria.
-      const transactions = await resilientDBClient.getAllTransactions();
-      // console.log('All Transactions:', transactions);
-      return transactions
+async function createNewUser(username: string, email: string, password: string, role: string) {
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
 
-    } catch (error) {
-      console.error('Error fetching all transactions:', JSON.stringify(error, null, 2));
-  }
-}
-
-async function createNewUser(username:string, email:string, password: string, role:string) {
-    const transactionData = {
-        operation: "CREATE",
-        amount: 1010,
-        signerPublicKey: publicKey,
-        signerPrivateKey: privateKey,
-        recipientPublicKey: publicKey, 
-        asset: {
+  const transactionData = {
+      operation: "CREATE",
+      amount: 1010,
+      signerPublicKey: publicKey,
+      signerPrivateKey: privateKey,
+      recipientPublicKey: publicKey, 
+      asset: {
           message: "SIGN-Up",
-          email: email,     
-          password: password, 
+          email: email,
+          password: password,
           username: username,
-          role : role
-        }
-      }; 
-    const transaction = await resilientDBClient.postTransaction(transactionData);
-    console.log('Transaction posted:', transaction);
-    
-    return transaction.id; 
+          role: role,
+          timestamp: currentTimestamp // Add the Unix timestamp here
+      }
+  };
+
+  const transaction = await resilientDBClient.postTransaction(transactionData);
+  console.log('Transaction posted:', transaction);
+
+  return transaction.id;
 }
+
+
 
 async function getUserInfo(PublicKey: string) {
     const filter = {
@@ -103,9 +97,8 @@ app.post('/signup', async (req: Request, res: Response) => {
     else {
       try{
         console.log('user found in the system')
-        res.status(201).send({
+        res.status(205).send({
           message: "User name existed, Please try a new user name",
-          publicKey: "xxx"
         })
       } catch (err) {
         console.log(err)

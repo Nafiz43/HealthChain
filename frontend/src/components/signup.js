@@ -47,7 +47,7 @@ const Signup = () => {
         navigate('/login', { state: { message: data.message, publicKey: data.publicKey } })
       }
     } catch (error) {
-      setMessage('Sign Up Error');
+      setMessage('Sign Up Error! User already exists in the system!');
     }
   };
 
