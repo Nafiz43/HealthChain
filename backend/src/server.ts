@@ -204,18 +204,23 @@ app.post('/bookAppointment', (req, res) => {
   res.json({ message: 'Appointment booked successfully!' });
 });
 
-app.get('/api/viewAppointments', (req, res) => {
+app.get('/PatientViewAppointments', (req, res) => {
   // Fetch appointments from the database
-  res.json({ appointments: [{ date: '2024-11-30', time: '10:00 AM', doctor: 'Dr. Smith', status: 'Confirmed' }] });
+  res.json({ appointments: [{ date: '2024-11-30', time: '10:00 AM', doctor: 'Dr. Smith', status: 'Confirmed' }, { date: '2024-11-30', time: '10:00 AM', doctor: 'Dr. Smith', status: 'Confirmed' }] });
 });
 
-app.get('/api/viewMedications', (req, res) => {
+app.get('/PatientViewMedications', (req, res) => {
   // Fetch medications from the database
   res.json({ medications: [{ date: '2024-11-01', medicine: 'Paracetamol', dosage: '500mg', doctor: 'Dr. Lee', usageGuide: 'Twice a day' }] });
 });
 
-app.put('/api/updateProfile', (req, res) => {
+
+app.post('/PatientUpdateProfile', (req, res) => {
   const updatedProfile = req.body; // Example { fullName, dob, ssn, phoneNumber, email }
+  console.log(updatedProfile)
+
   // Update the profile in the database
   res.json({ message: 'Profile updated successfully!' });
 });
+
+

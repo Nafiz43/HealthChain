@@ -9,35 +9,87 @@ import '../styles/dashboard.css';
 
 const PatientIndex = () => {
   const [activePage, setActivePage] = useState('Dashboard'); // Default page
+  const [appointments, setAppointments] = useState([]);
+  const [medications, setMedications] = useState([]);
 
   const handleNavigation = (page) => {
     setActivePage(page); // Change the active page
   };
 
-  const handleBookAppointment = async (event) => {
+   // Fetch Appointments
+   const fetchAppointments = async () => {
+    try {
+      const response = await fetch('http://localhost:5050/PatientViewAppointments');
+      const data = await response.json();
+      setAppointments(data.appointments || []);
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+    }
+  };
+
+    // Fetch Medications
+    const fetchMedications = async () => {
+      try {
+        const response = await fetch('http://localhost:5050/PatientViewMedications');
+        const data = await response.json();
+        setMedications(data.medications || []);
+      } catch (error) {
+        console.error('Error fetching medications:', error);
+      }
+    };
+
+    const handleBookAppointment = async (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const data = {
+        date: formData.get('appointment-date'),
+        time: formData.get('appointment-time'),
+        doctor: formData.get('doctor-name'),
+        reason: formData.get('appointment-reason'),
+      };
+      alert(formData.get('appointment-date'))
+      
+      try {
+        const response = await fetch('http://localhost:5050/bookAppointment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const result = await response.json();
+        alert(result.message || 'Appointment booked successfully!');
+      } catch (error) {
+        alert('Error booking appointment: ' + error.message);
+      }
+    };
+
+
+      // Update Profile API call
+  const handleUpdateProfile = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const data = {
-      date: formData.get('appointment-date'),
-      time: formData.get('appointment-time'),
-      doctor: formData.get('doctor-name'),
-      reason: formData.get('appointment-reason'),
+      name: formData.get('full-name'),
+      dob: formData.get('dob'),
+      ssn: formData.get('ssn'),
+      phone: formData.get('phone-number'),
+      email: formData.get('email'),
     };
-    alert(formData.get('appointment-date'))
-    
+    alert(formData.get('phone-number'))
+
     try {
-      
-      const response = await fetch('http://localhost:5050/bookAppointment', {
+      const response = await fetch('http://localhost:5050/PatientUpdateProfile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       const result = await response.json();
-      alert(result.message || 'Appointment booked successfully!');
+      alert(result.message || 'Profile updated successfully!');
     } catch (error) {
-      alert('Error booking appointment: ' + error.message);
+      alert('Error updating profile: ' + error.message);
     }
   };
+
+
 
 
   let welcome = (
@@ -95,8 +147,11 @@ const PatientIndex = () => {
 
   let ViewAppointment = (
     <div style={{ marginLeft: '-30%' }}> 
-      <center style={{ marginLeft: '30%' }}><h2>Your Appointments</h2></center>
-      <table className="table table-striped"  style={{ width: '160%' }}>
+        <button onClick={fetchAppointments}> View Appointments</button>
+
+      <center><h2>Your Appointments</h2></center>
+      {/* <h2>Your Appointments</h2> */}
+      <table className="table table-striped" onClick={fetchAppointments} style={{ width: '160%' }}>
         <thead>
           <tr>
             <th>Date</th>
@@ -105,68 +160,16 @@ const PatientIndex = () => {
             <th>Status</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>2024-11-27</td>
-            <td>10:00 AM</td>
-            <td>Dr. John Smith</td>
-            <td className="text-success">Approved</td>
-          </tr>
-          <tr>
-            <td>2024-11-28</td>
-            <td>11:30 AM</td>
-            <td>Dr. Jane Doe</td>
-            <td className="text-warning">Pending</td>
-          </tr>
-          <tr>
-            <td>2024-12-01</td>
-            <td>09:00 AM</td>
-            <td>Dr. Richard Miles</td>
-            <td className="text-success">Approved</td>
-          </tr>
-          <tr>
-            <td>2024-12-02</td>
-            <td>03:15 PM</td>
-            <td>Dr. Clara Taylor</td>
-            <td className="text-warning">Pending</td>
-          </tr>
-          <tr>
-            <td>2024-12-03</td>
-            <td>01:00 PM</td>
-            <td>Dr. Emily Watson</td>
-            <td className="text-success">Approved</td>
-          </tr>
-          <tr>
-            <td>2024-12-04</td>
-            <td>11:45 AM</td>
-            <td>Dr. Michael Brown</td>
-            <td className="text-warning">Pending</td>
-          </tr>
-          <tr>
-            <td>2024-12-05</td>
-            <td>08:30 AM</td>
-            <td>Dr. Sophie Adams</td>
-            <td className="text-success">Approved</td>
-          </tr>
-          <tr>
-            <td>2024-12-06</td>
-            <td>04:00 PM</td>
-            <td>Dr. George Collins</td>
-            <td className="text-warning">Pending</td>
-          </tr>
-          <tr>
-            <td>2024-12-07</td>
-            <td>02:20 PM</td>
-            <td>Dr. Nancy Carter</td>
-            <td className="text-success">Approved</td>
-          </tr>
-          <tr>
-            <td>2024-12-08</td>
-            <td>10:10 AM</td>
-            <td>Dr. William Harris</td>
-            <td className="text-warning">Pending</td>
-          </tr>
-        </tbody>
+          <tbody>
+                {appointments.map((appointment, index) => (
+                  <tr key={index}>
+                    <td>{appointment.date}</td>
+                    <td>{appointment.time}</td>
+                    <td>{appointment.doctor}</td>
+                    <td>{appointment.status}</td>
+                  </tr>
+                ))}
+          </tbody>
       </table>
     </div>
   );
@@ -175,8 +178,10 @@ const PatientIndex = () => {
 
   let viewMedication = (
     <div>
+      <button onClick={fetchMedications}> View Medications</button>
+
       <center><h2>Medications</h2></center>
-      <table className="table table-striped" style={{ width: '100%' }}>
+      <table className="table table-striped"  style={{ width: '100%' }}>
         <thead>
           <tr>
             <th>Date</th>
@@ -186,78 +191,17 @@ const PatientIndex = () => {
             <th>Usage Guide</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>2024-11-25</td>
-            <td>Amoxicillin</td>
-            <td>500mg, Twice a Day</td>
-            <td>Dr. John Smith</td>
-            <td>Take after meals with a glass of water. Avoid dairy products.</td>
-          </tr>
-          <tr>
-            <td>2024-11-24</td>
-            <td>Ibuprofen</td>
-            <td>200mg, As Needed</td>
-            <td>Dr. Jane Doe</td>
-            <td>Use for pain relief. Do not exceed 3 doses in 24 hours.</td>
-          </tr>
-          <tr>
-            <td>2024-11-23</td>
-            <td>Metformin</td>
-            <td>850mg, Once a Day</td>
-            <td>Dr. Emily White</td>
-            <td>Take with breakfast to reduce stomach upset. Monitor blood sugar regularly.</td>
-          </tr>
-          <tr>
-            <td>2024-11-22</td>
-            <td>Lisinopril</td>
-            <td>10mg, Once a Day</td>
-            <td>Dr. Adam Brown</td>
-            <td>Take at the same time daily. Avoid potassium-rich foods.</td>
-          </tr>
-          <tr>
-            <td>2024-11-21</td>
-            <td>Simvastatin</td>
-            <td>40mg, Before Bedtime</td>
-            <td>Dr. Sarah Taylor</td>
-            <td>Take in the evening for maximum effectiveness. Avoid grapefruit.</td>
-          </tr>
-          <tr>
-            <td>2024-11-20</td>
-            <td>Albuterol</td>
-            <td>2 Puffs, As Needed</td>
-            <td>Dr. Paul Green</td>
-            <td>Shake well before use. Wait 1 minute between puffs.</td>
-          </tr>
-          <tr>
-            <td>2024-11-19</td>
-            <td>Prednisone</td>
-            <td>5mg, Taper Dose</td>
-            <td>Dr. John Smith</td>
-            <td>Follow the prescribed taper schedule to avoid withdrawal symptoms.</td>
-          </tr>
-          <tr>
-            <td>2024-11-18</td>
-            <td>Atorvastatin</td>
-            <td>20mg, Once a Day</td>
-            <td>Dr. Jane Doe</td>
-            <td>Take with or without food. Regular liver function tests recommended.</td>
-          </tr>
-          <tr>
-            <td>2024-11-17</td>
-            <td>Hydrochlorothiazide</td>
-            <td>25mg, Morning</td>
-            <td>Dr. Emily White</td>
-            <td>Take in the morning to avoid nighttime urination.</td>
-          </tr>
-          <tr>
-            <td>2024-11-16</td>
-            <td>Azithromycin</td>
-            <td>500mg, Once a Day</td>
-            <td>Dr. Adam Brown</td>
-            <td>Complete the full course even if symptoms improve.</td>
-          </tr>
-        </tbody>
+          <tbody>
+                {medications.map((medication, index) => (
+                  <tr key={index}>
+                    <td>{medication.date}</td>
+                    <td>{medication.medicine}</td>
+                    <td>{medication.dosage}</td>
+                    <td>{medication.doctor}</td>
+                    <td>{medication.usageGuide}</td>
+                  </tr>
+                ))}
+          </tbody>
       </table>
     </div>
   );
@@ -265,26 +209,26 @@ const PatientIndex = () => {
   let updateProfile_ = (
     <div style={{ width: '60%' }}>
       <h2>Update Profile</h2>
-      <form>
-        <div className="form-group">
-          <label htmlFor="fullName">Full Name</label>
-          <input type="text" className="form-control" id="fullName" placeholder="Enter your full name" />
+      <form className="appointment-form"  onSubmit={handleUpdateProfile}>
+        <div className="form-group" >
+          <label htmlFor="full-name">Full Name</label>
+          <input type="text" className="form-control" id="full-name" name='full-name' placeholder="Enter your full name" />
         </div>
         <div className="form-group">
           <label htmlFor="dob">Date of Birth</label>
-          <input type="date" className="form-control" id="dob" />
+          <input type="date" className="form-control" id="dob" name="dob"/>
         </div>
         <div className="form-group">
           <label htmlFor="ssn">SSN</label>
-          <input type="text" className="form-control" id="ssn" placeholder="Enter your SSN" />
+          <input type="text" className="form-control" id="ssn" placeholder="Enter your SSN" name="ssn" />
         </div>
         <div className="form-group">
           <label htmlFor="phoneNumber">Phone Number</label>
-          <input type="text" className="form-control" id="phoneNumber" placeholder="Enter your phone number" />
+          <input type="text" className="form-control" id="phone-number" name="phone-number" placeholder="Enter your phone number" />
         </div>
         <div className="form-group">
           <label htmlFor="email">Email</label>
-          <input type="email" className="form-control" id="email" placeholder="Enter your email" />
+          <input type="email" className="form-control" id="email" name="email" placeholder="Enter your email" />
         </div>
         <button type="submit" className="btn btn-primary">Update Profile</button>
       </form>
