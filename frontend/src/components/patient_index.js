@@ -4,9 +4,6 @@ import Logout  from './logout';
 
 import '../styles/dashboard.css';
 
-
-
-
 const PatientIndex = () => {
   const [activePage, setActivePage] = useState('Dashboard'); // Default page
   const [appointments, setAppointments] = useState([]);
@@ -77,7 +74,7 @@ const PatientIndex = () => {
     alert(formData.get('phone-number'))
 
     try {
-      const response = await fetch('http://localhost:5050/PatientUpdateProfile', {
+      const response = await fetch('http://localhost:5050/UpdateProfile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

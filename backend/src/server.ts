@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import { ResilientDB, FetchClient } from 'resilientdb-javascript-sdk';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import { emit } from 'process';
 
 
 const app = express();
@@ -180,7 +181,7 @@ app.post('/login', async (req: Request, res: Response) => {
     // }
 
     res.status(201).send({
-      message: "Patient"
+      message: "Doctor"
     })
 
 
@@ -215,7 +216,7 @@ app.get('/PatientViewMedications', (req, res) => {
 });
 
 
-app.post('/PatientUpdateProfile', (req, res) => {
+app.post('/UpdateProfile', (req, res) => {
   const updatedProfile = req.body; // Example { fullName, dob, ssn, phoneNumber, email }
   console.log(updatedProfile)
 
@@ -223,4 +224,27 @@ app.post('/PatientUpdateProfile', (req, res) => {
   res.json({ message: 'Profile updated successfully!' });
 });
 
+
+app.post('/addMedication', (req, res) => {
+  const medication = req.body; // Example { date, time, doctor, reason }
+  console.log(req.body)
+  // Add logic to store the appointment in the database
+  res.json({ message: 'Medication Added Successfully!' });
+});
+
+app.get('/DoctorViewMedications', (req, res) => {
+  // Fetch medications from the database
+  res.json({ medications: [{ patientUsername: 'Nafiz43', prescribedDate: '2020-02-02', medicineName: 'paracetomol', dosage: '500mg', usageGuide: 'Twice a day' }] });
+});
+
+app.get('/viewPatients', (req, res) => {
+  // Fetch medications from the database
+  res.json({ patients: [{ userName: 'Nafiz43', email: '2020-02-02', phoneNumber: 'paracetomol', publicKey: '500mg', lastUpdated: 'Twice a day' }] });
+});
+
+
+app.get('/viewDoctors', (req, res) => {
+  // Fetch medications from the database
+  res.json({ doctors: [{ userName: 'Nafiz43', email: '2020-02-02', phoneNumber: 'paracetomol', publicKey: '500mg', lastUpdated: 'Twice a day'  }] });
+});
 

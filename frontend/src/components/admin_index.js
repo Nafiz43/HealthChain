@@ -6,10 +6,41 @@ import '../styles/dashboard.css';
 
 const AdminIndex = () => {
   const [activePage, setActivePage] = useState('Dashboard'); // Default page
+  const [patients, setPatients] = useState([]);
+  const [doctors, setDoctors] = useState([]);
+
 
   const handleNavigation = (page) => {
     setActivePage(page); // Change the active page
   };
+
+  const handleUpdateProfile = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = {
+      name: formData.get('full-name'),
+      dob: formData.get('dob'),
+      ssn: formData.get('ssn'),
+      phone: formData.get('phone-number'),
+      email: formData.get('email'),
+    };
+    alert(formData.get('phone-number'))
+
+    try {
+      const response = await fetch('http://localhost:5050/UpdateProfile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      alert(result.message || 'Profile updated successfully!');
+    } catch (error) {
+      alert('Error updating profile: ' + error.message);
+    }
+  };
+
+
+
 
   let welcome = (
     <h2>Welcome to Admin Dashboard</h2>
@@ -18,34 +49,46 @@ const AdminIndex = () => {
   let updateProfile_ = (
     <div style={{ width: '60%' }}>
       <h2>Update Profile</h2>
-      <form>
-        <div className="form-group">
-          <label htmlFor="fullName">Full Name</label>
-          <input type="text" className="form-control" id="fullName" placeholder="Enter your full name" />
+      <form className="appointment-form"  onSubmit={handleUpdateProfile}>
+        <div className="form-group" >
+          <label htmlFor="full-name">Full Name</label>
+          <input type="text" className="form-control" id="full-name" name='full-name' placeholder="Enter your full name" />
         </div>
         <div className="form-group">
           <label htmlFor="dob">Date of Birth</label>
-          <input type="date" className="form-control" id="dob" />
+          <input type="date" className="form-control" id="dob" name="dob"/>
         </div>
         <div className="form-group">
           <label htmlFor="ssn">SSN</label>
-          <input type="text" className="form-control" id="ssn" placeholder="Enter your SSN" />
+          <input type="text" className="form-control" id="ssn" placeholder="Enter your SSN" name="ssn" />
         </div>
         <div className="form-group">
           <label htmlFor="phoneNumber">Phone Number</label>
-          <input type="text" className="form-control" id="phoneNumber" placeholder="Enter your phone number" />
+          <input type="text" className="form-control" id="phone-number" name="phone-number" placeholder="Enter your phone number" />
         </div>
         <div className="form-group">
           <label htmlFor="email">Email</label>
-          <input type="email" className="form-control" id="email" placeholder="Enter your email" />
+          <input type="email" className="form-control" id="email" name="email" placeholder="Enter your email" />
         </div>
         <button type="submit" className="btn btn-primary">Update Profile</button>
       </form>
     </div>
   );
 
+  
+  const fetchPatients = async () => {
+    try {
+      const response = await fetch('http://localhost:5050/viewPatients');
+      const data = await response.json();
+      setPatients(data.patients || []); // Store patients in the state
+    } catch (error) {
+      console.error('Error fetching Patient Info:', error);
+    }
+  };
+  
   let ViewPatientInfo = (
     <div>
+      <button onClick={fetchPatients}>View Patients</button>
       <h2>View Patients Info</h2>
       <table className="table table-striped" style={{ width: '100%' }}>
         <thead>
@@ -58,49 +101,33 @@ const AdminIndex = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>JohnDoe123</td>
-            <td>johndoe@example.com</td>
-            <td>(123) 456-7890</td>
-            <td>abcd1234xyz5678</td>
-            <td>2024-11-25</td>
-          </tr>
-          <tr>
-            <td>JaneSmith456</td>
-            <td>janesmith@example.com</td>
-            <td>(987) 654-3210</td>
-            <td>wxyz9876abcd5432</td>
-            <td>2024-11-20</td>
-          </tr>
-          <tr>
-            <td>MikeBrown789</td>
-            <td>mikebrown@example.com</td>
-            <td>(555) 123-4567</td>
-            <td>efgh6789ijkl0123</td>
-            <td>2024-11-22</td>
-          </tr>
-          <tr>
-            <td>AliceGreen321</td>
-            <td>alicegreen@example.com</td>
-            <td>(444) 555-6666</td>
-            <td>ijkl3456mnop6789</td>
-            <td>2024-11-23</td>
-          </tr>
-          <tr>
-            <td>CharlieWhite654</td>
-            <td>charliewhite@example.com</td>
-            <td>(222) 333-4444</td>
-            <td>mnop4567qrst9012</td>
-            <td>2024-11-21</td>
-          </tr>
+          {patients.map((patient, index) => ( // Iterate over patients array
+            <tr key={index}>
+              <td>{patient.userName}</td>
+              <td>{patient.email}</td>
+              <td>{patient.phoneNumber}</td>
+              <td>{patient.publicKey}</td>
+              <td>{patient.lastUpdated}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
   );
-  
 
+  const fetchDoctors = async () => {
+    try {
+      const response = await fetch('http://localhost:5050/viewDoctors');
+      const data = await response.json();
+      setDoctors(data.doctors || []); // Update doctors state with fetched data
+    } catch (error) {
+      console.error('Error fetching Doctors Info:', error);
+    }
+  };
+  
   let ViewDoctorInfo = (
     <div>
+      <button onClick={fetchDoctors}>View Doctors</button> {/* Correct trigger */}
       <h2>View Doctors Info</h2>
       <table className="table table-striped" style={{ width: '100%' }}>
         <thead>
@@ -113,47 +140,20 @@ const AdminIndex = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>JohnDoe123</td>
-            <td>johndoe@example.com</td>
-            <td>(123) 456-7890</td>
-            <td>abcd1234xyz5678</td>
-            <td>2024-11-25</td>
-          </tr>
-          <tr>
-            <td>JaneSmith456</td>
-            <td>janesmith@example.com</td>
-            <td>(987) 654-3210</td>
-            <td>wxyz9876abcd5432</td>
-            <td>2024-11-20</td>
-          </tr>
-          <tr>
-            <td>MikeBrown789</td>
-            <td>mikebrown@example.com</td>
-            <td>(555) 123-4567</td>
-            <td>efgh6789ijkl0123</td>
-            <td>2024-11-22</td>
-          </tr>
-          <tr>
-            <td>AliceGreen321</td>
-            <td>alicegreen@example.com</td>
-            <td>(444) 555-6666</td>
-            <td>ijkl3456mnop6789</td>
-            <td>2024-11-23</td>
-          </tr>
-          <tr>
-            <td>CharlieWhite654</td>
-            <td>charliewhite@example.com</td>
-            <td>(222) 333-4444</td>
-            <td>mnop4567qrst9012</td>
-            <td>2024-11-21</td>
-          </tr>
+          {doctors.map((doctor, index) => ( // Iterate over doctors array
+            <tr key={index}>
+              <td>{doctor.userName}</td>
+              <td>{doctor.email}</td>
+              <td>{doctor.phoneNumber}</td>
+              <td>{doctor.publicKey}</td>
+              <td>{doctor.lastUpdated}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
   );
   
-
 
   const renderContent = () => {
     // Render content based on active page

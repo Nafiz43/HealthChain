@@ -6,62 +6,116 @@ import '../styles/dashboard.css';
 
 const DoctorIndex = () => {
   const [activePage, setActivePage] = useState('Dashboard'); // Default page
+  const [medications, setMedications] = useState([]);
 
   const handleNavigation = (page) => {
     setActivePage(page); // Change the active page
   };
 
+  
+      // Update Profile API call
+  const handleUpdateProfile = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = {
+      name: formData.get('full-name'),
+      dob: formData.get('dob'),
+      ssn: formData.get('ssn'),
+      phone: formData.get('phone-number'),
+      email: formData.get('email'),
+    };
+    alert(formData.get('phone-number'))
 
+    try {
+      const response = await fetch('http://localhost:5050/UpdateProfile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      alert(result.message || 'Profile updated successfully!');
+    } catch (error) {
+      alert('Error updating profile: ' + error.message);
+    }
+  };
 
     
   let updateProfile_ = (
     <div style={{ width: '60%' }}>
       <h2>Update Profile</h2>
-      <form>
-        <div className="form-group">
-          <label htmlFor="fullName">Full Name</label>
-          <input type="text" className="form-control" id="fullName" placeholder="Enter your full name" />
+      <form className="appointment-form"  onSubmit={handleUpdateProfile}>
+        <div className="form-group" >
+          <label htmlFor="full-name">Full Name</label>
+          <input type="text" className="form-control" id="full-name" name='full-name' placeholder="Enter your full name" />
         </div>
         <div className="form-group">
           <label htmlFor="dob">Date of Birth</label>
-          <input type="date" className="form-control" id="dob" />
+          <input type="date" className="form-control" id="dob" name="dob"/>
         </div>
         <div className="form-group">
           <label htmlFor="ssn">SSN</label>
-          <input type="text" className="form-control" id="ssn" placeholder="Enter your SSN" />
+          <input type="text" className="form-control" id="ssn" placeholder="Enter your SSN" name="ssn" />
         </div>
         <div className="form-group">
           <label htmlFor="phoneNumber">Phone Number</label>
-          <input type="text" className="form-control" id="phoneNumber" placeholder="Enter your phone number" />
+          <input type="text" className="form-control" id="phone-number" name="phone-number" placeholder="Enter your phone number" />
         </div>
         <div className="form-group">
           <label htmlFor="email">Email</label>
-          <input type="email" className="form-control" id="email" placeholder="Enter your email" />
+          <input type="email" className="form-control" id="email" name="email" placeholder="Enter your email" />
         </div>
         <button type="submit" className="btn btn-primary">Update Profile</button>
       </form>
     </div>
   );
   
+  const handleAddMedication = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = {
+      patientName: formData.get('patientName'),
+      medicine: formData.get('medicine'),
+      dosage: formData.get('dosage'),
+      usageGuide: formData.get('usageGuide'),
+    };
+    alert(formData.get('patientName'))
+    
+    try {
+      const response = await fetch('http://localhost:5050/addMedication', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      alert(result.message || 'Medication Added successfully!');
+    } catch (error) {
+      alert('Error Adding Medication: ' + error.message);
+    }
+  };
 
 
   let AddMedication = (
     <div>
       <h2>Add Medications Page</h2>
-      <form>
+      <form className='appointment-form' onSubmit={handleAddMedication}>
+      <div className="form-group">
+          <label htmlFor="medicine">Patient User Name</label>
+          <input type="text" className="form-control" id="patientName" name='patientName' placeholder="Enter Patient Name" />
+        </div>
+
         <div className="form-group">
           <label htmlFor="medicine">Medicine</label>
-          <input type="text" className="form-control" id="medicine" placeholder="Enter medication name" />
+          <input type="text" className="form-control" id="medicine" name='medicine' placeholder="Enter Medication Name" />
         </div>
         
         <div className="form-group">
           <label htmlFor="dosage">Dosage Info</label>
-          <input type="text" className="form-control" id="dosage" placeholder="Enter dosage information" />
+          <input type="text" className="form-control" id="dosage" name='dosage' placeholder="Enter Dosage Information" />
         </div>
         
         <div className="form-group">
           <label htmlFor="usageGuide">Usage Guide</label>
-          <textarea className="form-control" id="usageGuide" rows="4" placeholder="Enter usage guide for the medicine"></textarea>
+          <textarea className="form-control" id="usageGuide" name='usageGuide' rows="4" placeholder="Enter usage guide for the medicine"></textarea>
         </div>
         
         <button type="submit" className="btn btn-primary">Add Medication</button>
@@ -69,8 +123,22 @@ const DoctorIndex = () => {
     </div>
   );
   
+    // Fetch Medications
+    const fetchMedications = async () => {
+      try {
+        const response = await fetch('http://localhost:5050/DoctorViewMedications');
+        const data = await response.json();
+        setMedications(data.medications || []);
+        alert("hello")
+
+      } catch (error) {
+        console.error('Error fetching medications:', error);
+      }
+    };
+
   let ViewMedication = (
     <div>
+      <button onClick={fetchMedications}>View Medication</button>
       <h2>View Medications Page</h2>
       <table className="table table-striped">
         <thead>
@@ -83,77 +151,16 @@ const DoctorIndex = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>john_doe</td>
-            <td>2024-11-01</td>
-            <td>Amoxicillin</td>
-            <td>500mg, 3 times a day</td>
-            <td>Take with food</td>
-          </tr>
-          <tr>
-            <td>jane_smith</td>
-            <td>2024-10-25</td>
-            <td>Paracetamol</td>
-            <td>250mg, every 4 hours</td>
-            <td>Drink plenty of fluids</td>
-          </tr>
-          <tr>
-            <td>mike_brown</td>
-            <td>2024-10-15</td>
-            <td>Ibuprofen</td>
-            <td>400mg, 2 times a day</td>
-            <td>Avoid alcohol while on medication</td>
-          </tr>
-          <tr>
-            <td>lisa_white</td>
-            <td>2024-09-30</td>
-            <td>Metformin</td>
-            <td>500mg, once a day</td>
-            <td>Take with breakfast</td>
-          </tr>
-          <tr>
-            <td>emily_jones</td>
-            <td>2024-09-20</td>
-            <td>Simvastatin</td>
-            <td>20mg, once at night</td>
-            <td>Avoid grapefruit</td>
-          </tr>
-          <tr>
-            <td>robert_lee</td>
-            <td>2024-09-15</td>
-            <td>Losartan</td>
-            <td>50mg, once a day</td>
-            <td>May cause dizziness, take with water</td>
-          </tr>
-          <tr>
-            <td>alex_davis</td>
-            <td>2024-08-30</td>
-            <td>Amoxicillin</td>
-            <td>250mg, 4 times a day</td>
-            <td>Finish the full course</td>
-          </tr>
-          <tr>
-            <td>paul_martin</td>
-            <td>2024-08-10</td>
-            <td>Penicillin</td>
-            <td>500mg, every 6 hours</td>
-            <td>Take on an empty stomach</td>
-          </tr>
-          <tr>
-            <td>anna_taylor</td>
-            <td>2024-07-25</td>
-            <td>Prednisone</td>
-            <td>10mg, once a day</td>
-            <td>Avoid sudden stop, taper dose</td>
-          </tr>
-          <tr>
-            <td>jason_johnson</td>
-            <td>2024-07-15</td>
-            <td>Aspirin</td>
-            <td>81mg, once a day</td>
-            <td>Take with food</td>
-          </tr>
-        </tbody>
+                {medications.map((medication, index) => (
+                  <tr key={index}>
+                    <td>{medication.patientUsername}</td>
+                    <td>{medication.prescribedDate}</td>
+                    <td>{medication.medicineName}</td>
+                    <td>{medication.dosage}</td>
+                    <td>{medication.usageGuide}</td>
+                  </tr>
+                ))}
+          </tbody>
       </table>
     </div>
   );
