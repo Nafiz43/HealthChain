@@ -7,6 +7,8 @@ import '../styles/dashboard.css';
 const DoctorIndex = () => {
   const [activePage, setActivePage] = useState('Dashboard'); // Default page
   const [medications, setMedications] = useState([]);
+  const [approveAppointments, setApproveAppointments] = useState([]);
+
 
   const handleNavigation = (page) => {
     setActivePage(page); // Change the active page
@@ -165,28 +167,42 @@ const DoctorIndex = () => {
     </div>
   );
 
-  let ApproveAppoinment = (
-    <div>
-      <h2>View Appointments</h2>
-      <div className="card-deck">
-        {/* Appointment Card 1 */}
-        <div className="card" style={{ width: '22rem' }}>
+// Fetch Appointments
+const ApproveAppointments = async () => {
+  try {
+    const response = await fetch('http://localhost:5050/ApproveAppointments');
+    const data = await response.json();
+    setApproveAppointments(data.appointments || []); // Fixed the key to match the backend
+    alert("Appointments fetched successfully!");
+  } catch (error) {
+    console.error('Error Approving Appointments:', error);
+  }
+};
+
+let ApproveAppoinment = (
+  <div>
+    <h2>View Appointments</h2>
+    <button onClick={ApproveAppointments}>View Appointments</button>
+    <div className="card-deck">
+      {approveAppointments.map((appointment, index) => ( // Iterate over appointments array
+        <div className="card" style={{ width: '22rem' }} key={index}>
           <div className="card-body">
-            <h5 className="card-title">Appointment 1</h5>
-            <p className="card-text"><strong>Date:</strong> 2024-11-01</p>
-            <p className="card-text"><strong>Time:</strong> 10:00 AM</p>
-            <p className="card-text"><strong>Reason:</strong> Regular Checkup</p>
+            <h5 className="card-title">Appointment {index + 1}</h5>
+            <p className="card-text"><strong>Date:</strong> {appointment.date}</p>
+            <p className="card-text"><strong>Patient Username:</strong> {appointment.patientUsername}</p>
+            <p className="card-text"><strong>Time:</strong> {appointment.time}</p>
+            <p className="card-text"><strong>Reason:</strong> {appointment.reason}</p>
             <div className="btn-group" role="group" aria-label="Appointment Actions">
               <button type="button" className="btn btn-success" style={{ marginLeft: '40%', marginRight: '20px' }}>Accept</button>
               <button type="button" className="btn btn-danger">Reject</button>
             </div>
           </div>
         </div>
-  
-        
-      </div>
+      ))}
     </div>
-  );
+  </div>
+);
+
   
 
   

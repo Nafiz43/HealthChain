@@ -181,7 +181,7 @@ app.post('/login', async (req: Request, res: Response) => {
     // }
 
     res.status(201).send({
-      message: "Doctor"
+      message: "Admin"
     })
 
 
@@ -248,3 +248,23 @@ app.get('/viewDoctors', (req, res) => {
   res.json({ doctors: [{ userName: 'Nafiz43', email: '2020-02-02', phoneNumber: 'paracetomol', publicKey: '500mg', lastUpdated: 'Twice a day'  }] });
 });
 
+
+
+app.get('/ApproveAppointments', (req, res) => {
+  res.json({
+    appointments: [
+      {
+        date: '2024-11-27',
+        patientUsername: 'JohnDoe',
+        time: '10:30 AM',
+        reason: 'Routine Checkup',
+      },
+      {
+        date: '2024-11-28',
+        patientUsername: 'JaneDoe',
+        time: '2:00 PM',
+        reason: 'Follow-up Consultation',
+      },
+    ],
+  });
+});
