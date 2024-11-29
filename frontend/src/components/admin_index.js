@@ -103,7 +103,7 @@ const AdminIndex = () => {
         <tbody>
           {patients.map((patient, index) => ( // Iterate over patients array
             <tr key={index}>
-              <td>{patient.userName}</td>
+              <td>{patient.username}</td>
               <td>{patient.email}</td>
               <td>{patient.phoneNumber}</td>
               <td>{patient.publicKey}</td>

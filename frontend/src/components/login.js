@@ -48,12 +48,12 @@ const Login = () => {
       setMessage(data.message);
       console.log(data)
 
-      if(data.message === "Patient")
+      if(data.role === "Patient")
       {
-        navigate('/patient_index')
+        navigate('/patient_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey } })
 
       }
-      else if(data.message === "Doctor")
+      else if(data.role === "Doctor")
         {
           navigate('/doctor_index')
         }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
 import Logout  from './logout';
+import { useLocation } from 'react-router-dom';
 
 import '../styles/dashboard.css';
 
@@ -9,6 +10,16 @@ const PatientIndex = () => {
   const [appointments, setAppointments] = useState([]);
   const [medications, setMedications] = useState([]);
 
+  const [message, setMessage] = useState('');
+
+  const location = useLocation();
+  let msg;
+  let pubKey = location.state.publicKey;
+  let username = location.state.username;
+  let secKey = location.state.secretKey;
+  console.log("LLL, ", location.state)
+  console.log("ll ", pubKey)
+
   const handleNavigation = (page) => {
     setActivePage(page); // Change the active page
   };
@@ -16,8 +27,9 @@ const PatientIndex = () => {
    // Fetch Appointments
    const fetchAppointments = async () => {
     try {
-      const response = await fetch('http://localhost:5050/PatientViewAppointments');
+      const response = await fetch(`http://localhost:5050/PatientViewAppointments?publicKey=${pubKey}`);
       const data = await response.json();
+      console.log("lllkl ",data)
       setAppointments(data.appointments || []);
     } catch (error) {
       console.error('Error fetching appointments:', error);
@@ -35,7 +47,7 @@ const PatientIndex = () => {
       }
     };
 
-    const handleBookAppointment = async (event) => {
+    const handleBookAppointment = async (event, publicKey) => {
       event.preventDefault();
       const formData = new FormData(event.target);
       const data = {
@@ -45,9 +57,11 @@ const PatientIndex = () => {
         reason: formData.get('appointment-reason'),
       };
       alert(formData.get('appointment-date'))
+      console.log(pubKey)
+      console.log(secKey)
       
       try {
-        const response = await fetch('http://localhost:5050/bookAppointment', {
+        const response = await fetch(`http://localhost:5050/bookAppointment?publicKey=${pubKey}&secKey=${secKey}&username=${username}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
@@ -72,6 +86,7 @@ const PatientIndex = () => {
       email: formData.get('email'),
     };
     alert(formData.get('phone-number'))
+    console.log(data)
 
     try {
       const response = await fetch('http://localhost:5050/UpdateProfile', {
@@ -239,6 +254,7 @@ const PatientIndex = () => {
       case 'Dashboard':
         return welcome;
       case 'BookAppointments':
+        console.log("pp ", pubKey)
         return bookAppoinment;
       case 'ViewAppointments':
         return ViewAppointment;

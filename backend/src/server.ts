@@ -4,7 +4,6 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import { emit } from 'process';
 
-
 const app = express();
 const port = 5050;
 
@@ -33,7 +32,8 @@ async function createNewUser(username: string, email: string, password: string, 
           password: password,
           username: username,
           role: role,
-          timestamp: currentTimestamp // Add the Unix timestamp here
+          secretKey: privateKey,
+          timestamp: currentTimestamp // Add the Unix timestamp here  5s5aqjQ8dkXWaKHU9LscxjzJHUXicf6FMQ29TmeNmoDA
       }
   };
 
@@ -59,6 +59,25 @@ async function getUserInfo(PublicKey: string) {
 
     console.log(email); // Outputs: nikhan@ucdavis.edu
     console.log('Filtered Transactions:', transactions);
+    return tns
+}
+
+async function getRoleBasedList(role: String) {
+    let allTransactions = await resilientDBClient.getAllTransactions();
+    let roleBasedList = [];
+    for (let i = 0; i < allTransactions.length; i++) {
+        const transaction = allTransactions[i];
+        const asset = JSON.parse(transaction.asset.replace(/'/g, '"'));
+        if(asset.data.role == role) {
+            roleBasedList.push(asset.data);
+        }
+    }
+    return roleBasedList;
+}
+
+async function timestampToDate(timestamp: number) {
+  const date = new Date(timestamp * 1000);
+  return date.toLocaleString();
 }
 
 
@@ -75,60 +94,50 @@ app.post('/signup', async (req: Request, res: Response) => {
     let allTransactions = await resilientDBClient.getAllTransactions();
     console.log(allTransactions.length)
 
-    let flag = 0;
-    let i = 0;
-    for(i = 0; i < allTransactions.length; i++) {
-        let tx = allTransactions[i];
-        if (tx.asset) {
-           let tx_asset = tx.asset.replace(/'/g, '"')
-           let json_tx_asset = JSON.parse(tx_asset)
-           console.log(json_tx_asset.data.username)
-           if(json_tx_asset.data.username == username) {
-              console.log('user name found');
-              flag = 1;
-              break;
-           }
-        }
-    }
-    console.log('flag ', flag)
-    if(flag == 0) {
-      const newUser = createNewUser(username,email,password, role);
-      console.log(newUser)
-      res.status(201).send({
-          message: "User signed up successfully!",
-          publicKey: publicKey
-      })
-    }
-    else {
-      try{
-        console.log('user found in the system')
-        res.status(205).send({
-          message: "User name existed, Please try a new user name",
-        })
-      } catch (err) {
-        console.log(err)
-      }
-    }
-
-
-
-    // const newUser = await createNewUser(username,email,password, role);
-    // console.log(newUser)
-    // res.status(201).send({
-    //   message: "User signed up successfully!",
-    //   publicKey: publicKey
-    // })
-
-    //Database Connection code goes here
-
-    // try {
-    //   const newUser = createNewUser(username,email,password);
-  
-    //   // await newUser.save();
-    //   res.status(201).send({ message: 'User signed up successfully! Your Public Key is: '+ publicKey+'\nUse the public key and password to login to the system' });
-    // } catch (error) {
-    //   res.status(500).send({ message: 'Error signing up user', error });
+    // let flag = 0;
+    // let i = 0;
+    // for(i = 0; i < allTransactions.length; i++) {
+    //     let tx = allTransactions[i];
+    //     if (tx.asset) {
+    //        let tx_asset = tx.asset.replace(/'/g, '"')
+    //        let json_tx_asset = JSON.parse(tx_asset)
+    //        console.log(json_tx_asset.data.username)
+    //        if(json_tx_asset.data.username == username) {
+    //           console.log('user name found');
+    //           flag = 1;
+    //           break;
+    //        }
+    //     }
     // }
+    //console.log('flag ', flag)
+    const newUser = createNewUser(username,email,password, role);
+    console.log(newUser)
+    res.status(201).send({
+        message: "User signed up successfully!",
+        publicKey: publicKey
+    })
+    // if(flag == 0) {
+    //   const newUser = createNewUser(username,email,password, role);
+    //   console.log(newUser)
+    //   res.status(201).send({
+    //       message: "User signed up successfully!",
+    //       publicKey: publicKey
+    //   })
+    // }
+    // else {
+    //   try{
+    //     console.log('user found in the system')
+    //     res.status(205).send({
+    //       message: "User name existed, Please try a new user name",
+    //     })
+    //   } catch (err) {
+    //     console.log(err)
+    //   }
+    // }
+
+
+
+    // 6dcovaDR2yM9v4hMi9DVnivqt7A3xXDPCZSVWEbwaVXp
 
   });
 
@@ -145,7 +154,7 @@ app.post('/patient_index', async (req: Request, res: Response) => {
     res.status(201).send({
       message: "Patient Dashboard!"
     })
-    });
+});
     
 
 app.post('/doctor_index', async (req: Request, res: Response) => {
@@ -168,7 +177,24 @@ app.post('/login', async (req: Request, res: Response) => {
     const password = req.body.password;
     const username = req.body.username
     console.log(username, password, PublicKey)
+    let role;
+    let pvtKey;
 
+    try {
+      const userInfo = await getUserInfo(PublicKey)
+      console.log("userInfo")
+      console.log(userInfo)
+      const asset = userInfo.asset
+      const jsonObj = asset.replace(/'/g, '"');
+      // Parse the JSON string
+      const t = JSON.parse(jsonObj);
+      role = t.data.role;
+      pvtKey = t.data.secretKey;
+    } catch (err) {
+      console.log(err)
+    }
+
+    console.log("kkk ", role)
     
     // try {
     //   const newUser = getUserInfo(req.body.publicKey,req.body.password);
@@ -181,7 +207,12 @@ app.post('/login', async (req: Request, res: Response) => {
     // }
 
     res.status(201).send({
-      message: "Admin"
+      message: "Login Successful",
+      role: role,
+      publicKey: PublicKey,
+      username: username,
+      secKey: pvtKey
+
     })
 
 
@@ -198,16 +229,75 @@ app.listen(port, () => {
 
 
 
-app.post('/bookAppointment', (req, res) => {
+app.post('/bookAppointment', async (req, res) => {
+  //let secKey:String;
   const appointment = req.body; // Example { date, time, doctor, reason }
+  const date = req.body.date;
+  const time = req.body.time;
+  const doctor = req.body.doctor;
+  const reason = req.body.reason;
+  const pubKey = req.query.publicKey;
+  const username = req.query.username;
+  const secKey = req.query.secKey;
   console.log(req.body)
+  console.log(pubKey)
+  console.log(secKey)
+
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
+
+  const transactionData = {
+    operation: "CREATE",
+    amount: 1020,
+    signerPublicKey: pubKey?.toString() || "default-public-key",
+    signerPrivateKey: secKey?.toString() || "default-private-key",
+    recipientPublicKey: pubKey?.toString() || "default-recipient-key",
+    asset: {
+        message: "Appointment",
+        username: username,
+        date: date,
+        time: time,
+        doctor: doctor,
+        reason: reason,
+        timestamp: currentTimestamp
+    }
+  };
+
+  try{
+    const transaction = await resilientDBClient.postTransaction(transactionData);
+    console.log(transaction)
+  } catch (err) {
+    console.log(err)
+  }
+
   // Add logic to store the appointment in the database
   res.json({ message: 'Appointment booked successfully!' });
 });
 
-app.get('/PatientViewAppointments', (req, res) => {
+app.get('/PatientViewAppointments', async (req, res) => {
   // Fetch appointments from the database
-  res.json({ appointments: [{ date: '2024-11-30', time: '10:00 AM', doctor: 'Dr. Smith', status: 'Confirmed' }, { date: '2024-11-30', time: '10:00 AM', doctor: 'Dr. Smith', status: 'Confirmed' }] });
+  console.log(req.query.publicKey)
+  const filter = {
+    ownerPublicKey: req.query.publicKey?.toString() || "default-public-key"
+    // recipientPublicKey can also be specified here.
+  };
+
+  try{
+    const transactions = await resilientDBClient.getFilteredTransactions(filter);
+    console.log(transactions)
+    let appointments = []
+    for(let i = 0; i < transactions.length; i++) {
+        let t = transactions[i];
+        let tx_asset = t.asset.replace(/'/g, '"');
+        let json_tx_asset = JSON.parse(tx_asset);
+        if(json_tx_asset.data.message == 'Appointment') {
+          console.log(json_tx_asset);
+          appointments.push(json_tx_asset.data);
+        }
+    }
+    res.json({ appointments: appointments });
+  } catch (err) {
+    console.log(err)
+  }
 });
 
 app.get('/PatientViewMedications', (req, res) => {
@@ -216,9 +306,22 @@ app.get('/PatientViewMedications', (req, res) => {
 });
 
 
-app.post('/UpdateProfile', (req, res) => {
+app.post('/UpdateProfile', async (req, res) => {
   const updatedProfile = req.body; // Example { fullName, dob, ssn, phoneNumber, email }
   console.log(updatedProfile)
+
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
+
+  const transactionData = {
+      operation: "CREATE",
+      amount: 1010,
+      signerPublicKey: publicKey,
+      signerPrivateKey: privateKey,
+      recipientPublicKey: publicKey, 
+      asset: updatedProfile
+  };
+
+  const transaction = await resilientDBClient.postTransaction(transactionData);
 
   // Update the profile in the database
   res.json({ message: 'Profile updated successfully!' });
@@ -237,9 +340,15 @@ app.get('/DoctorViewMedications', (req, res) => {
   res.json({ medications: [{ patientUsername: 'Nafiz43', prescribedDate: '2020-02-02', medicineName: 'paracetomol', dosage: '500mg', usageGuide: 'Twice a day' }] });
 });
 
-app.get('/viewPatients', (req, res) => {
+app.get('/viewPatients', async (req, res) => {
   // Fetch medications from the database
-  res.json({ patients: [{ userName: 'Nafiz43', email: '2020-02-02', phoneNumber: 'paracetomol', publicKey: '500mg', lastUpdated: 'Twice a day' }] });
+  try {
+    let patients = await getRoleBasedList('Patient');
+    console.log("pp ", patients)
+    res.json({ patients: patients });
+  } catch (err) {
+    console.log(err)
+  }
 });
 
 
