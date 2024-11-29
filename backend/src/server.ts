@@ -258,6 +258,7 @@ app.post('/bookAppointment', async (req, res) => {
         time: time,
         doctor: doctor,
         reason: reason,
+        status: "Pending",
         timestamp: currentTimestamp
     }
   };
@@ -308,21 +309,33 @@ app.get('/PatientViewMedications', (req, res) => {
 
 app.post('/UpdateProfile', async (req, res) => {
   const updatedProfile = req.body; // Example { fullName, dob, ssn, phoneNumber, email }
+  const pubKey = req.query.publicKey;
+  const username = req.query.username;
+  const pvtKey = req.query.secKey;
+  updatedProfile.username = username;
+
   console.log(updatedProfile)
 
   const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
+  updatedProfile.timestamp = currentTimestamp;
+  updatedProfile.message = 'Update Profile'
 
   const transactionData = {
       operation: "CREATE",
       amount: 1010,
-      signerPublicKey: publicKey,
-      signerPrivateKey: privateKey,
-      recipientPublicKey: publicKey, 
+      signerPublicKey: pubKey?.toString() || "default-public-key",
+      signerPrivateKey: pvtKey?.toString() || "default-private-key",
+      recipientPublicKey: pubKey?.toString() || "default-public-key", 
       asset: updatedProfile
   };
+  console.log(updatedProfile)
+  try {
+    const transaction = await resilientDBClient.postTransaction(transactionData);
+    console.log(transaction)
 
-  const transaction = await resilientDBClient.postTransaction(transactionData);
-
+  } catch (err) {
+    console.log(err)
+  }
   // Update the profile in the database
   res.json({ message: 'Profile updated successfully!' });
 });

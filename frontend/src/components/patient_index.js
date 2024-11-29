@@ -89,7 +89,7 @@ const PatientIndex = () => {
     console.log(data)
 
     try {
-      const response = await fetch('http://localhost:5050/UpdateProfile', {
+      const response = await fetch(`http://localhost:5050/UpdateProfile?publicKey=${pubKey}&secKey=${secKey}&username=${username}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
