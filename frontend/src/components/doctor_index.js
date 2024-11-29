@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
 import Logout  from './logout';
+import { useLocation } from 'react-router-dom';
+
 
 import '../styles/dashboard.css';
 
@@ -8,6 +10,14 @@ const DoctorIndex = () => {
   const [activePage, setActivePage] = useState('Dashboard'); // Default page
   const [medications, setMedications] = useState([]);
   const [approveAppointments, setApproveAppointments] = useState([]);
+
+  const location = useLocation();
+  let msg;
+  let pubKey = location.state.publicKey;
+  let username = location.state.username;
+  let secKey = location.state.secretKey;
+  console.log("LLL, ", location.state)
+  console.log("ll ", pubKey)
 
 
   const handleNavigation = (page) => {

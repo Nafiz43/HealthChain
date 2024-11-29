@@ -45,21 +45,43 @@ async function createNewUser(username: string, email: string, password: string, 
 
 
 
-async function getUserInfo(PublicKey: string) {
+async function getUserInfo(PublicKey: string, username: string) {
     const filter = {
       ownerPublicKey: PublicKey
       // recipientPublicKey can also be specified here.
     };
     const transactions = await resilientDBClient.getFilteredTransactions(filter);
     // Access the email
-    const tns = transactions[0]; // Assuming we're working with the first transaction
-    const asset = JSON.parse(tns.asset.replace(/'/g, '"')); // Replacing single quotes with double quotes to make it valid JSON
-
-    const email = asset.data.email;
-
-    console.log(email); // Outputs: nikhan@ucdavis.edu
-    console.log('Filtered Transactions:', transactions);
-    return tns
+    let tns = null;
+    for(let i = 0; i< transactions.length; i++) {
+      const transaction = transactions[i];
+      try {
+        const asset = JSON.parse(transaction.asset.replace(/'/g, '"'));
+        
+        if (asset.data.message === 'SIGN-Up' && asset.data.username === username) {
+          tns = transaction;
+          console.log(tns);
+          break; // Exit the loop when the first matching transaction is found
+        }
+      } catch (error) {
+        console.error('Error parsing transaction asset:', error);
+      }
+    }
+    
+    // Check if `tns` is defined
+    if (tns) {
+      try {
+        const asset = JSON.parse(tns.asset.replace(/'/g, '"'));
+        console.log('Parsed asset:', asset);
+        return tns;
+      } catch (error) {
+        console.error('Error parsing tns asset:', error);
+      }
+    } else {
+      console.log('No matching transaction found.');
+      return null;
+    }
+    // const tns = transactions[0]; // Assuming we're working with the first transaction
 }
 
 async function getRoleBasedList(role: String) {
@@ -181,15 +203,17 @@ app.post('/login', async (req: Request, res: Response) => {
     let pvtKey;
 
     try {
-      const userInfo = await getUserInfo(PublicKey)
-      console.log("userInfo")
-      console.log(userInfo)
-      const asset = userInfo.asset
-      const jsonObj = asset.replace(/'/g, '"');
-      // Parse the JSON string
-      const t = JSON.parse(jsonObj);
-      role = t.data.role;
-      pvtKey = t.data.secretKey;
+      const userInfo = await getUserInfo(PublicKey, username);
+      console.log("userInfo");
+      console.log(userInfo);
+      if (userInfo) {
+        const asset = userInfo.asset;
+        const jsonObj = asset.replace(/'/g, '"');
+        // Parse the JSON string
+        const t = JSON.parse(jsonObj);
+        role = t.data.role;
+        pvtKey = t.data.secretKey;
+      }
     } catch (err) {
       console.log(err)
     }
