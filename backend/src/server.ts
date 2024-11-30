@@ -52,6 +52,7 @@ async function getUserInfo(PublicKey: string, username: string) {
     };
     const transactions = await resilientDBClient.getFilteredTransactions(filter);
     // Access the email
+    console.log(username)
     let tns = null;
     for(let i = 0; i< transactions.length; i++) {
       const transaction = transactions[i];
@@ -90,7 +91,7 @@ async function getRoleBasedList(role: String) {
     for (let i = 0; i < allTransactions.length; i++) {
         const transaction = allTransactions[i];
         const asset = JSON.parse(transaction.asset.replace(/'/g, '"'));
-        if(asset.data.role == role) {
+        if(asset.data.role == role && asset.data.message == 'SIGN-Up') {
             roleBasedList.push(asset.data);
         }
     }
@@ -389,10 +390,15 @@ app.get('/viewPatients', async (req, res) => {
 });
 
 
-app.get('/viewDoctors', (req, res) => {
+app.get('/viewDoctors', async (req, res) => {
   // Fetch medications from the database
-  res.json({ doctors: [{ userName: 'Nafiz43', email: '2020-02-02', phoneNumber: 'paracetomol', publicKey: '500mg', lastUpdated: 'Twice a day'  }] });
-});
+  try {
+    let d = await getRoleBasedList('Doctor');
+    console.log("pp doc ", d)
+    res.json({ doctors: d });
+  } catch (err) {
+    console.log(err) //You public key is : 3dfR6tiHP1vKJCdRQRteSmvaXnfTDPU9YPwDMR1Atmwa p2
+  }});
 
 
 
