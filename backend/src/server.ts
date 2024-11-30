@@ -3,6 +3,7 @@ import { ResilientDB, FetchClient } from 'resilientdb-javascript-sdk';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { emit } from 'process';
+import { timeEnd } from 'console';
 
 const app = express();
 const port = 5050;
@@ -366,9 +367,36 @@ app.post('/UpdateProfile', async (req, res) => {
 });
 
 
-app.post('/addMedication', (req, res) => {
+app.post('/addMedication', async (req, res) => {
   const medication = req.body; // Example { date, time, doctor, reason }
-  console.log(req.body)
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
+
+  console.log(req.body) // CmgRxRjkicerkUL9Q84ExhmAUhxEEoMCs4iNQGRXWsFh popopo po@gmail.com patient
+                        // Smith sm@gmail.com doctor CmgRxRjkicerkUL9Q84ExhmAUhxEEoMCs4iNQGRXWsFh
+  
+  
+  const pubKey = req.query.pubKey;
+  const { publicKey, privateKey } = ResilientDB.generateKeys();
+  medication.doctor = req.query.username;
+  medication.timestamp = currentTimestamp;
+  medication.message = 'add_medication'
+  const transactionData = {
+    operation: "CREATE",
+    amount: 1020,
+    signerPublicKey: pubKey?.toString() || "default-public-key",
+    signerPrivateKey: privateKey,
+    recipientPublicKey: pubKey?.toString() || "default-recipient-key",
+    asset: medication
+  };
+
+  try{
+    const transaction = await resilientDBClient.postTransaction(transactionData);
+    console.log(transaction)
+  } catch (err) {
+    console.log(err)
+  }
+
+  
   // Add logic to store the appointment in the database
   res.json({ message: 'Medication Added Successfully!' });
 });

@@ -93,7 +93,7 @@ const DoctorIndex = () => {
     alert(formData.get('patientName'))
     
     try {
-      const response = await fetch('http://localhost:5050/addMedication', {
+      const response = await fetch(`http://localhost:5050/addMedication?publicKey=${pubKey}&username=${username}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
