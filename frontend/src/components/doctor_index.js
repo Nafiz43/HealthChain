@@ -16,6 +16,7 @@ const DoctorIndex = () => {
   let pubKey = location.state.publicKey;
   let username = location.state.username;
   let secKey = location.state.secretKey;
+  let role = location.state.role;
   console.log("LLL, ", location.state)
   console.log("ll ", pubKey)
 
@@ -39,7 +40,7 @@ const DoctorIndex = () => {
     alert(formData.get('phone-number'))
 
     try {
-      const response = await fetch('http://localhost:5050/UpdateProfile', {
+      const response = await fetch(`http://localhost:5050/UpdateProfile?publicKey=${pubKey}&secKey=${secKey}&username=${username}&role=${role}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

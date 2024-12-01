@@ -89,15 +89,43 @@ async function getUserInfo(PublicKey: string, username: string) {
 async function getRoleBasedList(role: String) {
     let allTransactions = await resilientDBClient.getAllTransactions();
     let roleBasedList = [];
+    let updateTransactions = []
     for (let i = 0; i < allTransactions.length; i++) {
         const transaction = allTransactions[i];
         const asset = JSON.parse(transaction.asset.replace(/'/g, '"'));
         if(asset.data.role == role && asset.data.message == 'SIGN-Up') {
-            roleBasedList.push(asset.data);
+            roleBasedList.push(asset.data.username);
+        }
+
+        if(asset.data.role == role && asset.data.message == 'Update Profile') {
+            updateTransactions.push(asset.data);
         }
     }
-    return roleBasedList;
+
+    let roleList = []
+    for (let i = 0; i < roleBasedList.length; i++) {
+        let user = roleBasedList[i];
+        let updateUser = [];
+        for (let j = 0; j < updateTransactions.length; j++) {
+            let updateTransaction = updateTransactions[j];
+            // const asset = JSON.parse(updateTransaction.asset.replace(/'/g, '"'));
+             //console.log(updateTransaction)
+            if (updateTransaction.username && updateTransaction.username == user) {
+                updateUser.push(updateTransaction)
+            }
+
+        }
+        console.log(updateUser)
+        if(updateUser.length > 0) {
+          const latest = updateUser.reduce((max, obj) => (obj.timestamp > max.timestamp ? obj : max), updateUser[0]);
+          roleList.push(latest)
+        }
+
+    }
+    return roleList;
 }
+
+
 
 async function timestampToDate(timestamp: number) {
   const date = new Date(timestamp * 1000);
@@ -231,6 +259,7 @@ app.post('/login', async (req: Request, res: Response) => {
     // } catch (error) {
     //   res.status(500).send({ message: 'LOG-IN Failed', error });
     // }
+    console.log(username)
 
     res.status(201).send({
       message: "Login Successful",
@@ -338,8 +367,11 @@ app.post('/UpdateProfile', async (req, res) => {
   const pubKey = req.query.publicKey;
   const username = req.query.username;
   const pvtKey = req.query.secKey;
+  const role = req.query.role;
   updatedProfile.username = username;
+  updatedProfile.role = role;
 
+  console.log("updated profile")
   console.log(updatedProfile)
 
   const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
@@ -409,9 +441,12 @@ app.get('/DoctorViewMedications', (req, res) => {
 app.get('/viewPatients', async (req, res) => {
   // Fetch medications from the database
   try {
-    let patients = await getRoleBasedList('Patient');
-    console.log("pp ", patients)
-    res.json({ patients: patients });
+    let p = await getRoleBasedList('Patient');
+    for(let i = 0; i < p.length; i++) {
+      p[i].lastUpdated = await timestampToDate(p[i].timestamp)
+  }
+    console.log("pp ", p)
+    res.json({ patients: p });
   } catch (err) {
     console.log(err)
   }
@@ -422,6 +457,9 @@ app.get('/viewDoctors', async (req, res) => {
   // Fetch medications from the database
   try {
     let d = await getRoleBasedList('Doctor');
+    for(let i = 0; i < d.length; i++) {
+        d[i].lastUpdated = await timestampToDate(d[i].timestamp)
+    } 
     console.log("pp doc ", d)
     res.json({ doctors: d });
   } catch (err) {

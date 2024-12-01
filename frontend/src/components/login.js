@@ -49,14 +49,14 @@ const Login = () => {
       console.log(data)
 
       if(data.role === "Patient"){
-        navigate('/patient_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey } })
+        navigate('/patient_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey, role: data.role } })
 
       }
       else if(data.role === "Doctor"){
-          navigate('/doctor_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey } })
+        navigate('/doctor_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey, role: data.role } })
       }
       else{
-        navigate('/admin_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey } })
+        navigate('/admin_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey, role: data.role } })
       }
       
 
