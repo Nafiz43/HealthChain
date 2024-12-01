@@ -89,7 +89,7 @@ async function getUserInfo(PublicKey: string, username: string) {
 async function getRoleBasedList(role: String) {
     let allTransactions = await resilientDBClient.getAllTransactions();
     let roleBasedList = [];
-    let updateTransactions = []
+    let updateTransactions = [];
     for (let i = 0; i < allTransactions.length; i++) {
         const transaction = allTransactions[i];
         const asset = JSON.parse(transaction.asset.replace(/'/g, '"'));
@@ -314,6 +314,7 @@ app.post('/bookAppointment', async (req, res) => {
         doctor: doctor,
         reason: reason,
         status: "Pending",
+        publicKey: pubKey,
         timestamp: currentTimestamp
     }
   };
@@ -514,21 +515,43 @@ app.get('/viewDoctors', async (req, res) => {
 
 
 
-app.get('/ApproveAppointments', (req, res) => {
-  res.json({
-    appointments: [
-      {
-        date: '2024-11-27',
-        patientUsername: 'JohnDoe',
-        time: '10:30 AM',
-        reason: 'Routine Checkup',
-      },
-      {
-        date: '2024-11-28',
-        patientUsername: 'JaneDoe',
-        time: '2:00 PM',
-        reason: 'Follow-up Consultation',
-      },
-    ],
-  });
+app.get('/ApproveAppointments', async (req, res) => {
+  try {
+    const user = req.query.username;
+    
+    const transactions = await resilientDBClient.getAllTransactions()
+    let docMed = [];
+    for (let i = 0; i < transactions.length; i++) {
+      let t = transactions[i];
+
+      let tx_asset = t.asset.replace(/'/g, '"');
+      let json_tx_asset = JSON.parse(tx_asset);
+      if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.doctor == user) {
+        console.log(json_tx_asset);
+        // json_tx_asset.data.date = await timestampToDate(json_tx_asset.data.timestamp);
+        // json_tx_asset.data.date = json_tx_asset.data.date.split(',')[0];
+        docMed.push(json_tx_asset.data);
+      }
+    }
+    console.log('dd ', docMed);
+    res.json({ appointments: docMed});
+  } catch (err) {
+    console.log(err)
+  }
+  // res.json({
+  //   appointments: [
+  //     {
+  //       date: '2024-11-27',
+  //       patientUsername: 'JohnDoe',
+  //       time: '10:30 AM',
+  //       reason: 'Routine Checkup',
+  //     },
+  //     {
+  //       date: '2024-11-28',
+  //       patientUsername: 'JaneDoe',
+  //       time: '2:00 PM',
+  //       reason: 'Follow-up Consultation',
+  //     },
+  //   ],
+  // });
 });

@@ -181,7 +181,7 @@ const DoctorIndex = () => {
 // Fetch Appointments
 const ApproveAppointments = async () => {
   try {
-    const response = await fetch('http://localhost:5050/ApproveAppointments');
+    const response = await fetch(`http://localhost:5050/ApproveAppointments?publicKey=${pubKey}&username=${username}`);
     const data = await response.json();
     setApproveAppointments(data.appointments || []); // Fixed the key to match the backend
     alert("Appointments fetched successfully!");
@@ -200,7 +200,7 @@ let ApproveAppoinment = (
           <div className="card-body">
             <h5 className="card-title">Appointment {index + 1}</h5>
             <p className="card-text"><strong>Date:</strong> {appointment.date}</p>
-            <p className="card-text"><strong>Patient Username:</strong> {appointment.patientUsername}</p>
+            <p className="card-text"><strong>Patient Username:</strong> {appointment.username}</p>
             <p className="card-text"><strong>Time:</strong> {appointment.time}</p>
             <p className="card-text"><strong>Reason:</strong> {appointment.reason}</p>
             <div className="btn-group" role="group" aria-label="Appointment Actions">
