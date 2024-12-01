@@ -94,7 +94,7 @@ const DoctorIndex = () => {
     alert(formData.get('patientName'))
     
     try {
-      const response = await fetch(`http://localhost:5050/addMedication?publicKey=${pubKey}&username=${username}`, {
+      const response = await fetch(`http://localhost:5050/addMedication?publicKey=${pubKey}&username=${username}&secretKey=${secKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -139,7 +139,7 @@ const DoctorIndex = () => {
     // Fetch Medications
     const fetchMedications = async () => {
       try {
-        const response = await fetch('http://localhost:5050/DoctorViewMedications');
+        const response = await fetch(`http://localhost:5050/DoctorViewMedications?publicKey=${pubKey}&username=${username}`);
         const data = await response.json();
         setMedications(data.medications || []);
         alert("hello")
@@ -166,9 +166,9 @@ const DoctorIndex = () => {
         <tbody>
                 {medications.map((medication, index) => (
                   <tr key={index}>
-                    <td>{medication.patientUsername}</td>
-                    <td>{medication.prescribedDate}</td>
-                    <td>{medication.medicineName}</td>
+                    <td>{medication.patientName}</td>
+                    <td>{medication.date}</td>
+                    <td>{medication.medicine}</td>
                     <td>{medication.dosage}</td>
                     <td>{medication.usageGuide}</td>
                   </tr>

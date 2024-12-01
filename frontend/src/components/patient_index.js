@@ -39,7 +39,7 @@ const PatientIndex = () => {
     // Fetch Medications
     const fetchMedications = async () => {
       try {
-        const response = await fetch('http://localhost:5050/PatientViewMedications');
+        const response = await fetch(`http://localhost:5050/PatientViewMedications?publicKey=${pubKey}&username=${username}`);
         const data = await response.json();
         setMedications(data.medications || []);
       } catch (error) {

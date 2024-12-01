@@ -356,9 +356,31 @@ app.get('/PatientViewAppointments', async (req, res) => {
   }
 });
 
-app.get('/PatientViewMedications', (req, res) => {
-  // Fetch medications from the database
-  res.json({ medications: [{ date: '2024-11-01', medicine: 'Paracetamol', dosage: '500mg', doctor: 'Dr. Lee', usageGuide: 'Twice a day' }] });
+app.get('/PatientViewMedications', async (req, res) => {
+  try {
+    const user = req.query.username;
+    const filter = {
+      ownerPublicKey: req.query.publicKey?.toString() || "default-public-key"
+      // recipientPublicKey can also be specified here.
+    };
+    const transactions = await resilientDBClient.getFilteredTransactions(filter);
+    let docMed = [];
+    for (let i = 0; i < transactions.length; i++) {
+      let t = transactions[i];
+      let tx_asset = t.asset.replace(/'/g, '"');
+      let json_tx_asset = JSON.parse(tx_asset);
+      if(json_tx_asset.data.message == 'add_medication' && json_tx_asset.data.patientName == user) {
+        //console.log(json_tx_asset);
+        json_tx_asset.data.date = await timestampToDate(json_tx_asset.data.timestamp);
+        json_tx_asset.data.date = json_tx_asset.data.date.split(',')[0];
+        docMed.push(json_tx_asset.data);
+      }
+    }
+    console.log('dd ', docMed);
+    res.json({ medications: docMed});
+  } catch (err) {
+    console.log(err)
+  }
 });
 
 
@@ -407,7 +429,8 @@ app.post('/addMedication', async (req, res) => {
                         // Smith sm@gmail.com doctor CmgRxRjkicerkUL9Q84ExhmAUhxEEoMCs4iNQGRXWsFh
   
   
-  const pubKey = req.query.pubKey;
+  const pubKey = req.query.publicKey;
+  const pvtKey = req.query.secretKey;
   const { publicKey, privateKey } = ResilientDB.generateKeys();
   medication.doctor = req.query.username;
   medication.timestamp = currentTimestamp;
@@ -416,11 +439,11 @@ app.post('/addMedication', async (req, res) => {
     operation: "CREATE",
     amount: 1020,
     signerPublicKey: pubKey?.toString() || "default-public-key",
-    signerPrivateKey: privateKey,
+    signerPrivateKey: pvtKey?.toString() || "default-private-key",
     recipientPublicKey: pubKey?.toString() || "default-recipient-key",
     asset: medication
   };
-
+  console.log(transactionData)
   try{
     const transaction = await resilientDBClient.postTransaction(transactionData);
     console.log(transaction)
@@ -433,9 +456,32 @@ app.post('/addMedication', async (req, res) => {
   res.json({ message: 'Medication Added Successfully!' });
 });
 
-app.get('/DoctorViewMedications', (req, res) => {
+app.get('/DoctorViewMedications', async (req, res) => {
   // Fetch medications from the database
-  res.json({ medications: [{ patientUsername: 'Nafiz43', prescribedDate: '2020-02-02', medicineName: 'paracetomol', dosage: '500mg', usageGuide: 'Twice a day' }] });
+  try {
+    const user = req.query.username;
+    const filter = {
+      ownerPublicKey: req.query.publicKey?.toString() || "default-public-key"
+      // recipientPublicKey can also be specified here.
+    };
+    const transactions = await resilientDBClient.getFilteredTransactions(filter);
+    let docMed = [];
+    for (let i = 0; i < transactions.length; i++) {
+      let t = transactions[i];
+      let tx_asset = t.asset.replace(/'/g, '"');
+      let json_tx_asset = JSON.parse(tx_asset);
+      if(json_tx_asset.data.message == 'add_medication' && json_tx_asset.data.doctor == user) {
+        //console.log(json_tx_asset);
+        json_tx_asset.data.date = await timestampToDate(json_tx_asset.data.timestamp);
+        json_tx_asset.data.date = json_tx_asset.data.date.split(',')[0];
+        docMed.push(json_tx_asset.data);
+      }
+    }
+    console.log('dd ', docMed);
+    res.json({ medications: docMed});
+  } catch (err) {
+    console.log(err)
+  }
 });
 
 app.get('/viewPatients', async (req, res) => {
@@ -444,7 +490,7 @@ app.get('/viewPatients', async (req, res) => {
     let p = await getRoleBasedList('Patient');
     for(let i = 0; i < p.length; i++) {
       p[i].lastUpdated = await timestampToDate(p[i].timestamp)
-  }
+    }
     console.log("pp ", p)
     res.json({ patients: p });
   } catch (err) {
