@@ -231,7 +231,7 @@ async function AcceptAppointmentAPI(appointment) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        patientName: appointment.username,
+        username: appointment.username,
         time: appointment.time,
       }),
     });
@@ -258,7 +258,7 @@ async function RejectAppointmentAPI(appointment) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        patientName: appointment.username,
+        username: appointment.username,
         time: appointment.time,
       }),
     });
