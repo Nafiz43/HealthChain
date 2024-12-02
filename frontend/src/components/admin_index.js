@@ -96,7 +96,7 @@ const AdminIndex = () => {
             <th>UserName</th>
             <th>Email</th>
             <th>Phone Number</th>
-            <th>Public Key</th>
+            <th>SSN</th>
             <th>Entry Last Updated</th>
           </tr>
         </thead>
@@ -105,8 +105,8 @@ const AdminIndex = () => {
             <tr key={index}>
               <td>{patient.username}</td>
               <td>{patient.email}</td>
-              <td>{patient.phoneNumber}</td>
-              <td>{patient.publicKey}</td>
+              <td>{patient.phone}</td>
+              <td>{patient.ssn}</td>
               <td>{patient.lastUpdated}</td>
             </tr>
           ))}
