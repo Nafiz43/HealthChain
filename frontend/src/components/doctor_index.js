@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
 import Logout  from './logout';
-import { useLocation } from 'react-router-dom';
+import { redirect, useLocation } from 'react-router-dom';
 
 
 import '../styles/dashboard.css';
@@ -135,6 +135,14 @@ const DoctorIndex = () => {
       </form>
     </div>
   );
+
+  // const handleAccept = async () => {
+  //   try {
+
+  //   } catch (err) {
+
+  //   }
+  // }
   
     // Fetch Medications
     const fetchMedications = async () => {
@@ -190,6 +198,88 @@ const ApproveAppointments = async () => {
   }
 };
 
+// let ApproveAppoinment = (
+//   <div>
+//     <h2>View Appointments</h2>
+//     <button onClick={ApproveAppointments}>View Appointments</button>
+//     <div className="card-deck">
+//       {approveAppointments.map((appointment, index) => ( // Iterate over appointments array
+//         <div className="card" style={{ width: '22rem' }} key={index}>
+//           <div className="card-body">
+//             <h5 className="card-title">Appointment {index + 1}</h5>
+//             <p className="card-text"><strong>Date:</strong> {appointment.date}</p>
+//             <p className="card-text"><strong>Patient Username:</strong> {appointment.username}</p>
+//             <p className="card-text"><strong>Time:</strong> {appointment.time}</p>
+//             <p className="card-text"><strong>Reason:</strong> {appointment.reason}</p>
+//             <div className="btn-group" role="group" aria-label="Appointment Actions">
+//               <button type="button" className="btn btn-success" style={{ marginLeft: '40%', marginRight: '20px' }}>Accept</button>
+//               <button type="button" className="btn btn-danger">Reject</button>
+//             </div>
+//           </div>
+//         </div>
+//       ))}
+//     </div>
+//   </div>
+// );
+
+
+async function AcceptAppointmentAPI(appointment) {
+  try {
+    const response = await fetch(`http://localhost:5050/accept-appointment?publicKey=${pubKey}&username=${username}&secKey=${secKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        patientName: appointment.username,
+        time: appointment.time,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to approve appointment');
+    }
+
+    const data = await response.json();
+    console.log('Appointment approved:', data);
+    if(response.status === 201) {
+      redirect(`http://localhost:5050/ApproveAppointments?publicKey=${pubKey}&username=${username}`)
+    }
+  } catch (error) {
+    console.error('Error approving appointment:', error);
+  }
+}
+
+async function RejectAppointmentAPI(appointment) {
+  try {
+    const response = await fetch(`http://localhost:5050/reject-appointment?publicKey=${pubKey}&username=${username}&secretKey=${secKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        patientName: appointment.username,
+        time: appointment.time,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to reject appointment');
+    }
+
+    const data = await response.json();
+    console.log('Appointment rejected:', data);
+    if(response.status === 201) {
+      redirect(`http://localhost:5050/ApproveAppointments?publicKey=${pubKey}&username=${username}`)
+    }
+  } catch (error) {
+    console.error('Error REJECTING appointment:', error);
+  }
+}
+
+
+
+
 let ApproveAppoinment = (
   <div>
     <h2>View Appointments</h2>
@@ -204,8 +294,15 @@ let ApproveAppoinment = (
             <p className="card-text"><strong>Time:</strong> {appointment.time}</p>
             <p className="card-text"><strong>Reason:</strong> {appointment.reason}</p>
             <div className="btn-group" role="group" aria-label="Appointment Actions">
-              <button type="button" className="btn btn-success" style={{ marginLeft: '40%', marginRight: '20px' }}>Accept</button>
-              <button type="button" className="btn btn-danger">Reject</button>
+              <button
+                type="button"
+                className="btn btn-success"
+                style={{ marginLeft: '40%', marginRight: '20px' }}
+                onClick={() => handleAccept(appointment)}
+              >
+                Accept
+              </button>
+              <button type="button" className="btn btn-danger" onClick={() => handleReject(appointment)}>Reject</button>
             </div>
           </div>
         </div>
@@ -214,6 +311,22 @@ let ApproveAppoinment = (
   </div>
 );
 
+// Function to handle the Accept button click
+function handleAccept(appointment) {
+  alert(`Patient Username: ${appointment.username}\nTime: ${appointment.time}`);
+  AcceptAppointmentAPI(appointment); 
+  redirect(`http://localhost:5050/ApproveAppointments?publicKey=${pubKey}&username=${username}`)
+}
+
+
+function handleReject(appointment) {
+  alert(`Patient Username: ${appointment.username}\nTime: ${appointment.time}`);
+  RejectAppointmentAPI(appointment); 
+  redirect(`http://localhost:5050/ApproveAppointments?publicKey=${pubKey}&username=${username}`)
+}
+
+
+// ####code functionality for accept feature
   
 
   

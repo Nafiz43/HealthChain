@@ -460,6 +460,7 @@ app.post('/addMedication', async (req, res) => {
 app.get('/DoctorViewMedications', async (req, res) => {
   // Fetch medications from the database
   try {
+    console.log("klkl ",req.query.publicKey);
     const user = req.query.username;
     const filter = {
       ownerPublicKey: req.query.publicKey?.toString() || "default-public-key"
@@ -518,15 +519,16 @@ app.get('/viewDoctors', async (req, res) => {
 app.get('/ApproveAppointments', async (req, res) => {
   try {
     const user = req.query.username;
-    
-    const transactions = await resilientDBClient.getAllTransactions()
+    console.log('user ', user)
+    const transactions = await resilientDBClient.getAllTransactions();
+    console.log("lll",transactions)
     let docMed = [];
     for (let i = 0; i < transactions.length; i++) {
       let t = transactions[i];
 
       let tx_asset = t.asset.replace(/'/g, '"');
       let json_tx_asset = JSON.parse(tx_asset);
-      if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.doctor == user) {
+      if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.doctor == user && json_tx_asset.data.status == "Pending") {
         console.log(json_tx_asset);
         // json_tx_asset.data.date = await timestampToDate(json_tx_asset.data.timestamp);
         // json_tx_asset.data.date = json_tx_asset.data.date.split(',')[0];
@@ -554,4 +556,79 @@ app.get('/ApproveAppointments', async (req, res) => {
   //     },
   //   ],
   // });
+});
+
+// app.post('Acc')
+
+
+
+// Approve Appointment API
+app.post('/accept-appointment', async (req, res) => {
+  const info = req.body;
+  const pubKey = req.query.publicKey;
+  const doctor = req.query.username;
+  const pvtKey = req.query.secKey;
+  info.doctor = doctor;
+  info.status = 'Accepted';
+  // info.publicKey = publicKey;
+
+  //console.log("updated profile")
+  //console.log(updatedProfile)
+
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
+  info.timestamp = currentTimestamp;
+  info.message = 'Appointment'
+
+  const transactionData = {
+      operation: "CREATE",
+      amount: 1010,
+      signerPublicKey: pubKey?.toString() || "default-public-key",
+      signerPrivateKey: pvtKey?.toString() || "default-private-key",
+      recipientPublicKey: pubKey?.toString() || "default-public-key", 
+      asset: info
+  };
+  console.log(info)
+  try {
+    const transaction = await resilientDBClient.postTransaction(transactionData);
+    console.log(transaction);
+    res.json({ success: true});
+  } catch (err) {
+    console.log(err)
+  }
+  //console.log(req.body)
+});
+
+app.post('/reject-appointment', async (req, res) => {
+  const info = req.body;
+  const pubKey = req.query.publicKey;
+  const doctor = req.query.username;
+  const pvtKey = req.query.secKey;
+  info.doctor = doctor;
+  info.status = 'Rejected';
+  // info.publicKey = publicKey;
+
+  //console.log("updated profile")
+  //console.log(updatedProfile)
+
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
+  info.timestamp = currentTimestamp;
+  info.message = 'Appointment'
+
+  const transactionData = {
+      operation: "CREATE",
+      amount: 1010,
+      signerPublicKey: pubKey?.toString() || "default-public-key",
+      signerPrivateKey: pvtKey?.toString() || "default-private-key",
+      recipientPublicKey: pubKey?.toString() || "default-public-key", 
+      asset: info
+  };
+  console.log(info)
+  try {
+    const transaction = await resilientDBClient.postTransaction(transactionData);
+    console.log(transaction)
+    res.json({ success: true});
+
+  } catch (err) {
+    console.log(err)
+  }
 });
