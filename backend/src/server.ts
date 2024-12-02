@@ -523,20 +523,48 @@ app.get('/ApproveAppointments', async (req, res) => {
     const transactions = await resilientDBClient.getAllTransactions();
     console.log("lll",transactions)
     let docMed = [];
+    let users = [];
     for (let i = 0; i < transactions.length; i++) {
       let t = transactions[i];
 
       let tx_asset = t.asset.replace(/'/g, '"');
       let json_tx_asset = JSON.parse(tx_asset);
       if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.doctor == user && json_tx_asset.data.status == "Pending") {
-        console.log(json_tx_asset);
+        //console.log(json_tx_asset);
         // json_tx_asset.data.date = await timestampToDate(json_tx_asset.data.timestamp);
         // json_tx_asset.data.date = json_tx_asset.data.date.split(',')[0];
         docMed.push(json_tx_asset.data);
+        users.push(json_tx_asset.data.username)
       }
+
+      if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.doctor == user && json_tx_asset.data.status == "Accepted") {
+        //console.log(json_tx_asset);
+        // json_tx_asset.data.date = await timestampToDate(json_tx_asset.data.timestamp);
+        // json_tx_asset.data.date = json_tx_asset.data.date.split(',')[0];
+        docMed.push(json_tx_asset.data);
+        users.push(json_tx_asset.data.username)
+      }
+
     }
-    console.log('dd ', docMed);
-    res.json({ appointments: docMed});
+    let pending_list = []
+
+    for(let i = 0; i < users.length; i++) {
+        const patient = users[i];
+        const patientData = [];
+        for(let j = 0; j < docMed.length; j++) {
+            if(patient == docMed[i].username) {
+                patientData.push(docMed[i]);
+            }
+        }
+        const latest = patientData.reduce((max, obj) => (obj.timestamp > max.timestamp ? obj : max), patientData[0]);
+        pending_list.push(latest)
+    }
+
+    const pendingAppointments = pending_list.filter(appointment => appointment.status === 'pending');
+
+    console.log(users)
+    console.log('dd ', pendingAppointments);
+    res.json({ appointments: pendingAppointments});
   } catch (err) {
     console.log(err)
   }
