@@ -1,6 +1,9 @@
 import express, { Request, Response } from 'express';
 import { ResilientDB, FetchClient } from 'resilientdb-javascript-sdk';
 import cors from 'cors';
+import bodyParser from 'body-parser';
+import { emit } from 'process';
+import { timeEnd } from 'console';
 
 const app = express();
 const port = 5050;
@@ -8,71 +11,219 @@ const port = 5050;
 app.use(cors());
 //app.use(cors());  // This allows requests from all origins
 app.use(express.json());
+app.use(bodyParser.json());
+
 
 const { publicKey, privateKey } = ResilientDB.generateKeys();
 const resilientDBClient = new ResilientDB("http://localhost:8000", new FetchClient());
 
-async function createNewUser(username:string, email:string, Password: string) {
-    const transactionData = {
-        operation: "CREATE",
-        amount: 5000,
-        signerPublicKey: publicKey,
-        signerPrivateKey: privateKey,
-        recipientPublicKey: publicKey, // For the sake of example, sending to self
-        asset: {
-          message: "Initial transaction",
-          email: email,     // Add email to asset
-          password: Password, // Add password to asset
-          UserName: username
-        }
-      };
-    
-    const transaction = await resilientDBClient.postTransaction(transactionData);
-    console.log('Transaction posted:', transaction);
-    
-    return transaction.id; // We'll need the transaction ID to update it next
+
+async function createNewUser(username: string, email: string, password: string, role: string) {
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
+
+  const transactionData = {
+      operation: "CREATE",
+      amount: 1010,
+      signerPublicKey: publicKey,
+      signerPrivateKey: privateKey,
+      recipientPublicKey: publicKey, 
+      asset: {
+          message: "SIGN-Up",
+          email: email,
+          password: password,
+          username: username,
+          role: role,
+          secretKey: privateKey,
+          timestamp: currentTimestamp // Add the Unix timestamp here  5s5aqjQ8dkXWaKHU9LscxjzJHUXicf6FMQ29TmeNmoDA
+      }
+  };
+
+  const transaction = await resilientDBClient.postTransaction(transactionData);
+  console.log('Transaction posted:', transaction);
+
+  return transaction.id;
 }
 
 
-async function getUserInfo(PublicKey: string, password: string) {
+
+async function getUserInfo(PublicKey: string, username: string) {
     const filter = {
-      ownerPublicKey: PublicKey,
-      Password: password
+      ownerPublicKey: PublicKey
       // recipientPublicKey can also be specified here.
     };
     const transactions = await resilientDBClient.getFilteredTransactions(filter);
     // Access the email
-    const tns = transactions[0]; // Assuming we're working with the first transaction
-    const asset = JSON.parse(tns.asset.replace(/'/g, '"')); // Replacing single quotes with double quotes to make it valid JSON
+    console.log(username)
+    let tns = null;
+    for(let i = 0; i< transactions.length; i++) {
+      const transaction = transactions[i];
+      try {
+        const asset = JSON.parse(transaction.asset.replace(/'/g, '"'));
+        
+        if (asset.data.message === 'SIGN-Up' && asset.data.username === username) {
+          tns = transaction;
+          console.log(tns);
+          break; // Exit the loop when the first matching transaction is found
+        }
+      } catch (error) {
+        console.error('Error parsing transaction asset:', error);
+      }
+    }
+    
+    // Check if `tns` is defined
+    if (tns) {
+      try {
+        const asset = JSON.parse(tns.asset.replace(/'/g, '"'));
+        console.log('Parsed asset:', asset);
+        return tns;
+      } catch (error) {
+        console.error('Error parsing tns asset:', error);
+      }
+    } else {
+      console.log('No matching transaction found.');
+      return null;
+    }
+    // const tns = transactions[0]; // Assuming we're working with the first transaction
+}
 
-    const email = asset.data.email;
+async function getRoleBasedList(role: String) {
+    let allTransactions = await resilientDBClient.getAllTransactions();
+    let roleBasedList = [];
+    let updateTransactions = [];
+    for (let i = 0; i < allTransactions.length; i++) {
+        const transaction = allTransactions[i];
+        const asset = JSON.parse(transaction.asset.replace(/'/g, '"'));
+        if(asset.data.role == role && asset.data.message == 'SIGN-Up') {
+            roleBasedList.push(asset.data.username);
+        }
 
-    console.log(email); // Outputs: nikhan@ucdavis.edu
-    console.log('Filtered Transactions:', transactions);
+        if(asset.data.role == role && asset.data.message == 'Update Profile') {
+            updateTransactions.push(asset.data);
+        }
+    }
+
+    let roleList = []
+    for (let i = 0; i < roleBasedList.length; i++) {
+        let user = roleBasedList[i];
+        let updateUser = [];
+        for (let j = 0; j < updateTransactions.length; j++) {
+            let updateTransaction = updateTransactions[j];
+            // const asset = JSON.parse(updateTransaction.asset.replace(/'/g, '"'));
+             //console.log(updateTransaction)
+            if (updateTransaction.username && updateTransaction.username == user) {
+                updateUser.push(updateTransaction)
+            }
+
+        }
+        console.log(updateUser)
+        if(updateUser.length > 0) {
+          const latest = updateUser.reduce((max, obj) => (obj.timestamp > max.timestamp ? obj : max), updateUser[0]);
+          roleList.push(latest)
+        }
+
+    }
+    return roleList;
+}
+
+
+
+async function timestampToDate(timestamp: number) {
+  const date = new Date(timestamp * 1000);
+  return date.toLocaleString();
 }
 
 
 app.post('/signup', async (req: Request, res: Response) => {
-    //const resilientDBClient = new ResilientDB("http://localhost:8000", new FetchClient());
-    //const { username, email, password } = req.body;
-    // console.log('jjjj ', JSON.stringify(req.body))
     const username = req.body.username;
     const email = req.body.email;
     const password = req.body.password;
+    const role = req.body.role;
 
-    console.log(username, email, password)
-    //Database Connection code goes here
 
-    // try {
-    //   const newUser = createNewUser(username,email,password);
-  
-    //   // await newUser.save();
-    //   res.status(201).send({ message: 'User signed up successfully! Your Public Key is: '+ publicKey+'\nUse the public key and password to login to the system' });
-    // } catch (error) {
-    //   res.status(500).send({ message: 'Error signing up user', error });
-    // }
+
+    console.log(username, email, password, role)
+
+    let allTransactions = await resilientDBClient.getAllTransactions();
+    console.log(allTransactions.length)
+
+    let flag = 0;
+    let i = 0;
+    for(i = 0; i < allTransactions.length; i++) {
+        let tx = allTransactions[i];
+        if (tx.asset) {
+           let tx_asset = tx.asset.replace(/'/g, '"')
+           let json_tx_asset = JSON.parse(tx_asset)
+           console.log(json_tx_asset.data.username)
+           if(json_tx_asset.data.username == username) {
+              console.log('user name found');
+              flag = 1;
+              break;
+           }
+        }
+    }
+    console.log('flag ', flag)
+    // const newUser = createNewUser(username,email,password, role);
+    // console.log(newUser)
+    // res.status(201).send({
+    //     message: "User signed up successfully!",
+    //     publicKey: publicKey
+    // })
+    if(flag == 0) {
+      try{
+        const newUser = await createNewUser(username,email,password, role);
+        console.log(newUser)
+        res.status(201).send({
+            message: "User signed up successfully!",
+            publicKey: publicKey
+        })
+        } catch (err) {
+           console.log(err)
+        }
+    }
+    else {
+      try{
+        console.log('user found in the system')
+        res.status(205).send({
+          message: "User name existed, Please try a new user name",
+        })
+      } catch (err) {
+        console.log(err)
+      }
+    }
+
+
+
+    // 6dcovaDR2yM9v4hMi9DVnivqt7A3xXDPCZSVWEbwaVXp
 
   });
+
+
+
+
+app.post('/logout', async (req: Request, res: Response) => {
+  res.status(201).send({
+    message: "Logged Out Successfully!"
+  })
+  });
+
+app.post('/patient_index', async (req: Request, res: Response) => {
+    res.status(201).send({
+      message: "Patient Dashboard!"
+    })
+});
+    
+
+app.post('/doctor_index', async (req: Request, res: Response) => {
+    res.status(201).send({
+      message: "Doctor Dashboard!"
+    })
+    });
+
+app.post('/admin_index', async (req: Request, res: Response) => {
+      res.status(201).send({
+        message: "Admin Dashboard!"
+      })
+      });
 
 
 app.post('/login', async (req: Request, res: Response) => {
@@ -82,7 +233,45 @@ app.post('/login', async (req: Request, res: Response) => {
     const password = req.body.password;
     const username = req.body.username
     console.log(username, password, PublicKey)
+    let role;
+    let pvtKey;
 
+    try {
+      const userInfo = await getUserInfo(PublicKey, username);
+      console.log("userInfo");
+      console.log(userInfo);
+      if (userInfo) {
+        const asset = userInfo.asset;
+        const jsonObj = asset.replace(/'/g, '"');
+        // Parse the JSON string
+        const t = JSON.parse(jsonObj);
+        role = t.data.role;
+        pvtKey = t.data.secretKey;
+        if((t.data.password != password) || (t.data.username != username))
+        {
+          console.log("Wrong username or Password")
+          res.status(205).send({message: "Wrong Username or Password"})
+        }
+        else
+        {
+          res.status(201).send({
+            message: "Login Successful",
+            role: role,
+            publicKey: PublicKey,
+            username: username,
+            secKey: pvtKey
+          })
+        }
+      }
+      else
+      {
+        res.status(205).send({message: "Unknown Error"})
+      }
+    } catch (err) {
+      console.log(err)
+    }
+
+    // console.log("kkk ", role)
     
     // try {
     //   const newUser = getUserInfo(req.body.publicKey,req.body.password);
@@ -93,8 +282,9 @@ app.post('/login', async (req: Request, res: Response) => {
     // } catch (error) {
     //   res.status(500).send({ message: 'LOG-IN Failed', error });
     // }
-    console.log("logInSuccesful")
-  });
+    // console.log(username)
+
+    });
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello from the backend!');
@@ -102,4 +292,383 @@ app.get('/', (req: Request, res: Response) => {
 
 app.listen(port, () => {
   console.log(`Backend is running at http://localhost:${port}`);
+});
+
+
+
+app.post('/bookAppointment', async (req, res) => {
+  //let secKey:String;
+  const appointment = req.body; // Example { date, time, doctor, reason }
+  const date = req.body.date;
+  const time = req.body.time;
+  const doctor = req.body.doctor;
+  const reason = req.body.reason;
+  const pubKey = req.query.publicKey;
+  const username = req.query.username;
+  const secKey = req.query.secKey;
+  console.log(req.body)
+  console.log(pubKey)
+  console.log(secKey)
+
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
+
+  const transactionData = {
+    operation: "CREATE",
+    amount: 1020,
+    signerPublicKey: pubKey?.toString() || "default-public-key",
+    signerPrivateKey: secKey?.toString() || "default-private-key",
+    recipientPublicKey: pubKey?.toString() || "default-recipient-key",
+    asset: {
+        message: "Appointment",
+        username: username,
+        date: date,
+        time: time,
+        doctor: doctor,
+        reason: reason,
+        status: "Pending",
+        publicKey: pubKey,
+        timestamp: currentTimestamp
+    }
+  };
+
+  try{
+    const transaction = await resilientDBClient.postTransaction(transactionData);
+    console.log(transaction)
+  } catch (err) {
+    console.log(err)
+  }
+
+  // Add logic to store the appointment in the database
+  res.json({ message: 'Appointment booked successfully!' });
+});
+
+app.get('/PatientViewAppointments', async (req, res) => {
+  // Fetch appointments from the database
+  console.log(req.query.publicKey)
+  const filter = {
+    ownerPublicKey: req.query.publicKey?.toString() || "default-public-key"
+    // recipientPublicKey can also be specified here.
+  };
+
+  try{
+    const transactions = await resilientDBClient.getFilteredTransactions(filter);
+    console.log(transactions)
+    let appointments = []
+    for(let i = 0; i < transactions.length; i++) {
+        let t = transactions[i];
+        let tx_asset = t.asset.replace(/'/g, '"');
+        let json_tx_asset = JSON.parse(tx_asset);
+        if(json_tx_asset.data.message == 'Appointment') {
+          console.log(json_tx_asset);
+          appointments.push(json_tx_asset.data);
+        }
+    }
+    res.json({ appointments: appointments });
+  } catch (err) {
+    console.log(err)
+  }
+});
+
+app.get('/PatientViewMedications', async (req, res) => {
+  try {
+    const user = req.query.username;
+    const filter = {
+      ownerPublicKey: req.query.publicKey?.toString() || "default-public-key"
+      // recipientPublicKey can also be specified here.
+    };
+    const transactions = await resilientDBClient.getFilteredTransactions(filter);
+    let docMed = [];
+    for (let i = 0; i < transactions.length; i++) {
+      let t = transactions[i];
+      let tx_asset = t.asset.replace(/'/g, '"');
+      let json_tx_asset = JSON.parse(tx_asset);
+      if(json_tx_asset.data.message == 'add_medication' && json_tx_asset.data.patientName == user) {
+        //console.log(json_tx_asset);
+        json_tx_asset.data.date = await timestampToDate(json_tx_asset.data.timestamp);
+        json_tx_asset.data.date = json_tx_asset.data.date.split(',')[0];
+        docMed.push(json_tx_asset.data);
+      }
+    }
+    console.log('dd ', docMed);
+    res.json({ medications: docMed});
+  } catch (err) {
+    console.log(err)
+  }
+});
+
+
+app.post('/UpdateProfile', async (req, res) => {
+  const updatedProfile = req.body; // Example { fullName, dob, ssn, phoneNumber, email }
+  const pubKey = req.query.publicKey;
+  const username = req.query.username;
+  const pvtKey = req.query.secKey;
+  const role = req.query.role;
+  updatedProfile.username = username;
+  updatedProfile.role = role;
+
+  console.log("updated profile")
+  console.log(updatedProfile)
+
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
+  updatedProfile.timestamp = currentTimestamp;
+  updatedProfile.message = 'Update Profile'
+
+  const transactionData = {
+      operation: "CREATE",
+      amount: 1010,
+      signerPublicKey: pubKey?.toString() || "default-public-key",
+      signerPrivateKey: pvtKey?.toString() || "default-private-key",
+      recipientPublicKey: pubKey?.toString() || "default-public-key", 
+      asset: updatedProfile
+  };
+  console.log(updatedProfile)
+  try {
+    const transaction = await resilientDBClient.postTransaction(transactionData);
+    console.log(transaction)
+
+  } catch (err) {
+    console.log(err)
+  }
+  // Update the profile in the database
+  res.json({ message: 'Profile updated successfully!' });
+});
+
+
+app.post('/addMedication', async (req, res) => {
+  const medication = req.body; // Example { date, time, doctor, reason }
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
+
+  console.log(req.body) // CmgRxRjkicerkUL9Q84ExhmAUhxEEoMCs4iNQGRXWsFh popopo po@gmail.com patient
+                        // Smith sm@gmail.com doctor CmgRxRjkicerkUL9Q84ExhmAUhxEEoMCs4iNQGRXWsFh
+  
+  
+  const pubKey = req.query.publicKey;
+  const pvtKey = req.query.secretKey;
+  const { publicKey, privateKey } = ResilientDB.generateKeys();
+  medication.doctor = req.query.username;
+  medication.timestamp = currentTimestamp;
+  medication.message = 'add_medication'
+  const transactionData = {
+    operation: "CREATE",
+    amount: 1020,
+    signerPublicKey: pubKey?.toString() || "default-public-key",
+    signerPrivateKey: pvtKey?.toString() || "default-private-key",
+    recipientPublicKey: pubKey?.toString() || "default-recipient-key",
+    asset: medication
+  };
+  console.log(transactionData)
+  try{
+    const transaction = await resilientDBClient.postTransaction(transactionData);
+    console.log(transaction)
+  } catch (err) {
+    console.log(err)
+  }
+
+  
+  // Add logic to store the appointment in the database
+  res.json({ message: 'Medication Added Successfully!' });
+});
+
+app.get('/DoctorViewMedications', async (req, res) => {
+  // Fetch medications from the database
+  try {
+    console.log("klkl ",req.query.publicKey);
+    const user = req.query.username;
+    const filter = {
+      ownerPublicKey: req.query.publicKey?.toString() || "default-public-key"
+      // recipientPublicKey can also be specified here.
+    };
+    const transactions = await resilientDBClient.getFilteredTransactions(filter);
+    let docMed = [];
+    for (let i = 0; i < transactions.length; i++) {
+      let t = transactions[i];
+      let tx_asset = t.asset.replace(/'/g, '"');
+      let json_tx_asset = JSON.parse(tx_asset);
+      if(json_tx_asset.data.message == 'add_medication' && json_tx_asset.data.doctor == user) {
+        //console.log(json_tx_asset);
+        json_tx_asset.data.date = await timestampToDate(json_tx_asset.data.timestamp);
+        json_tx_asset.data.date = json_tx_asset.data.date.split(',')[0];
+        docMed.push(json_tx_asset.data);
+      }
+    }
+    console.log('dd ', docMed);
+    res.json({ medications: docMed});
+  } catch (err) {
+    console.log(err)
+  }
+});
+
+app.get('/viewPatients', async (req, res) => {
+  // Fetch medications from the database
+  try {
+    let p = await getRoleBasedList('Patient');
+    for(let i = 0; i < p.length; i++) {
+      p[i].lastUpdated = await timestampToDate(p[i].timestamp)
+    }
+    console.log("pp ", p)
+    res.json({ patients: p });
+  } catch (err) {
+    console.log(err)
+  }
+});
+
+
+app.get('/viewDoctors', async (req, res) => {
+  // Fetch medications from the database
+  try {
+    let d = await getRoleBasedList('Doctor');
+    for(let i = 0; i < d.length; i++) {
+        d[i].lastUpdated = await timestampToDate(d[i].timestamp)
+    } 
+    console.log("pp doc ", d)
+    res.json({ doctors: d });
+  } catch (err) {
+    console.log(err) //You public key is : 3dfR6tiHP1vKJCdRQRteSmvaXnfTDPU9YPwDMR1Atmwa p2
+  }});
+
+
+
+app.get('/ApproveAppointments', async (req, res) => {
+  try {
+    const user = req.query.username;
+    console.log('user ', user)
+    const transactions = await resilientDBClient.getAllTransactions();
+    console.log("lll",transactions)
+    let docMed = [];
+    let users = [];
+    for (let i = 0; i < transactions.length; i++) {
+      let t = transactions[i];
+
+      let tx_asset = t.asset.replace(/'/g, '"');
+      let json_tx_asset = JSON.parse(tx_asset);
+      if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.doctor == user && json_tx_asset.data.status == "Pending") {
+        //console.log(json_tx_asset);
+        // json_tx_asset.data.date = await timestampToDate(json_tx_asset.data.timestamp);
+        // json_tx_asset.data.date = json_tx_asset.data.date.split(',')[0];
+        docMed.push(json_tx_asset.data);
+        users.push(json_tx_asset.data.username)
+      }
+
+      if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.doctor == user && json_tx_asset.data.status == "Accepted") {
+        //console.log(json_tx_asset);
+        // json_tx_asset.data.date = await timestampToDate(json_tx_asset.data.timestamp);
+        // json_tx_asset.data.date = json_tx_asset.data.date.split(',')[0];
+        docMed.push(json_tx_asset.data);
+        users.push(json_tx_asset.data.username)
+      }
+
+    }
+    let pending_list = []
+
+    for(let i = 0; i < users.length; i++) {
+        const patient = users[i];
+        const patientData = [];
+        for(let j = 0; j < docMed.length; j++) {
+            if(patient == docMed[i].username) {
+                patientData.push(docMed[i]);
+            }
+        }
+        const latest = patientData.reduce((max, obj) => (obj.timestamp > max.timestamp ? obj : max), patientData[0]);
+        pending_list.push(latest)
+    }
+
+    const pendingAppointments = pending_list.filter(appointment => appointment.status === 'pending');
+
+    console.log(users)
+    console.log('dd ', pendingAppointments);
+    res.json({ appointments: pendingAppointments});
+  } catch (err) {
+    console.log(err)
+  }
+  // res.json({
+  //   appointments: [
+  //     {
+  //       date: '2024-11-27',
+  //       patientUsername: 'JohnDoe',
+  //       time: '10:30 AM',
+  //       reason: 'Routine Checkup',
+  //     },
+  //     {
+  //       date: '2024-11-28',
+  //       patientUsername: 'JaneDoe',
+  //       time: '2:00 PM',
+  //       reason: 'Follow-up Consultation',
+  //     },
+  //   ],
+  // });
+});
+
+// app.post('Acc')
+
+
+
+// Approve Appointment API
+app.post('/accept-appointment', async (req, res) => {
+  const info = req.body;
+  const pubKey = req.query.publicKey;
+  const doctor = req.query.username;
+  const pvtKey = req.query.secKey;
+  info.doctor = doctor;
+  info.status = 'Accepted';
+  // info.publicKey = publicKey;
+
+  //console.log("updated profile")
+  //console.log(updatedProfile)
+
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
+  info.timestamp = currentTimestamp;
+  info.message = 'Appointment'
+
+  const transactionData = {
+      operation: "CREATE",
+      amount: 1010,
+      signerPublicKey: pubKey?.toString() || "default-public-key",
+      signerPrivateKey: pvtKey?.toString() || "default-private-key",
+      recipientPublicKey: pubKey?.toString() || "default-public-key", 
+      asset: info
+  };
+  console.log(info)
+  try {
+    const transaction = await resilientDBClient.postTransaction(transactionData);
+    console.log(transaction);
+    res.json({ success: true});
+  } catch (err) {
+    console.log(err)
+  }
+  //console.log(req.body)
+});
+
+app.post('/reject-appointment', async (req, res) => {
+  const info = req.body;
+  const pubKey = req.query.publicKey;
+  const doctor = req.query.username;
+  const pvtKey = req.query.secKey;
+  info.doctor = doctor;
+  info.status = 'Rejected';
+  // info.publicKey = publicKey;
+
+  //console.log("updated profile")
+  //console.log(updatedProfile)
+
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current Unix timestamp in seconds
+  info.timestamp = currentTimestamp;
+  info.message = 'Appointment'
+
+  const transactionData = {
+      operation: "CREATE",
+      amount: 1010,
+      signerPublicKey: pubKey?.toString() || "default-public-key",
+      signerPrivateKey: pvtKey?.toString() || "default-private-key",
+      recipientPublicKey: pubKey?.toString() || "default-public-key", 
+      asset: info
+  };
+  console.log(info)
+  try {
+    const transaction = await resilientDBClient.postTransaction(transactionData);
+    console.log(transaction)
+    res.json({ success: true});
+
+  } catch (err) {
+    console.log(err)
+  }
 });
