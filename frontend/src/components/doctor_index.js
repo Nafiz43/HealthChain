@@ -10,6 +10,7 @@ const DoctorIndex = () => {
   const [activePage, setActivePage] = useState('Dashboard'); // Default page
   const [medications, setMedications] = useState([]);
   const [approveAppointments, setApproveAppointments] = useState([]);
+  const [loading, setLoading] = useState(false); 
 
   const location = useLocation();
   let msg;

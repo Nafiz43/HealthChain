@@ -334,12 +334,11 @@ app.post('/bookAppointment', async (req, res) => {
   try{
     const transaction = await resilientDBClient.postTransaction(transactionData);
     console.log(transaction)
+    res.json({ message: 'Appointment booked successfully!' });
   } catch (err) {
+    console.log("Error Booking Appointments");
     console.log(err)
-  }
-
-  // Add logic to store the appointment in the database
-  res.json({ message: 'Appointment booked successfully!' });
+  }  
 });
 
 app.get('/PatientViewAppointments', async (req, res) => {

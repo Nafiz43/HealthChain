@@ -3,11 +3,13 @@ import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
 import Logout  from './logout';
 
 import '../styles/dashboard.css';
-//add loader here....
+
 const AdminIndex = () => {
   const [activePage, setActivePage] = useState('Dashboard'); // Default page
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(false); // New loading state
+
 
 
   const handleNavigation = (page) => {

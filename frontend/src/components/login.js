@@ -76,7 +76,7 @@ const Login = () => {
       } finally {
         setLoading(false); // Stop the loader after request is completed
       }
-    }, 30000); // Delay for 5 seconds
+    }, 10000); // Delay for 5 seconds
   };
   
 
