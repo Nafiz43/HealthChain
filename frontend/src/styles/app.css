@@ -120,6 +120,8 @@ body {
     margin-bottom: 20px;
     
     /* Loader Overlay */
+
+  }
 .loader-overlay {
   position: fixed;
   top: 0;
