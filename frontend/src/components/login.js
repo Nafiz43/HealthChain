@@ -46,22 +46,32 @@ const Login = () => {
 
       const data = await response.json();
       setMessage(data.message);
-      console.log(data)
-
-      if(data.role === "Patient"){
-        navigate('/patient_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey, role: data.role } })
-
+      console.log(data.role)
+      if(response.status===201)
+      {
+        if(data.role === "Patient"){
+          navigate('/patient_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey, role: data.role } })
+  
+        }
+        else if(data.role === "Doctor"){
+          navigate('/doctor_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey, role: data.role } })
+        }
+        else if(data.role === "Admin"){
+          navigate('/admin_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey, role: data.role } })
+        }
+        else
+        {
+          alert("Unknown error")
+        }
       }
-      else if(data.role === "Doctor"){
-        navigate('/doctor_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey, role: data.role } })
-      }
-      else{
-        navigate('/admin_index', { state: { message: data.message, publicKey: data.publicKey, username: data.username, secretKey: data.secKey, role: data.role } })
+      else
+      {
+        setMessage('Incorrect Username or Password');
       }
       
 
     } catch (error) {
-      setMessage('Error logging in');
+      setMessage('Incorrect Username or Password');
     }
   };
 

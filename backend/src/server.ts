@@ -146,46 +146,50 @@ app.post('/signup', async (req: Request, res: Response) => {
     let allTransactions = await resilientDBClient.getAllTransactions();
     console.log(allTransactions.length)
 
-    // let flag = 0;
-    // let i = 0;
-    // for(i = 0; i < allTransactions.length; i++) {
-    //     let tx = allTransactions[i];
-    //     if (tx.asset) {
-    //        let tx_asset = tx.asset.replace(/'/g, '"')
-    //        let json_tx_asset = JSON.parse(tx_asset)
-    //        console.log(json_tx_asset.data.username)
-    //        if(json_tx_asset.data.username == username) {
-    //           console.log('user name found');
-    //           flag = 1;
-    //           break;
-    //        }
-    //     }
-    // }
-    //console.log('flag ', flag)
-    const newUser = createNewUser(username,email,password, role);
-    console.log(newUser)
-    res.status(201).send({
-        message: "User signed up successfully!",
-        publicKey: publicKey
-    })
-    // if(flag == 0) {
-    //   const newUser = createNewUser(username,email,password, role);
-    //   console.log(newUser)
-    //   res.status(201).send({
-    //       message: "User signed up successfully!",
-    //       publicKey: publicKey
-    //   })
-    // }
-    // else {
-    //   try{
-    //     console.log('user found in the system')
-    //     res.status(205).send({
-    //       message: "User name existed, Please try a new user name",
-    //     })
-    //   } catch (err) {
-    //     console.log(err)
-    //   }
-    // }
+    let flag = 0;
+    let i = 0;
+    for(i = 0; i < allTransactions.length; i++) {
+        let tx = allTransactions[i];
+        if (tx.asset) {
+           let tx_asset = tx.asset.replace(/'/g, '"')
+           let json_tx_asset = JSON.parse(tx_asset)
+           console.log(json_tx_asset.data.username)
+           if(json_tx_asset.data.username == username) {
+              console.log('user name found');
+              flag = 1;
+              break;
+           }
+        }
+    }
+    console.log('flag ', flag)
+    // const newUser = createNewUser(username,email,password, role);
+    // console.log(newUser)
+    // res.status(201).send({
+    //     message: "User signed up successfully!",
+    //     publicKey: publicKey
+    // })
+    if(flag == 0) {
+      try{
+        const newUser = await createNewUser(username,email,password, role);
+        console.log(newUser)
+        res.status(201).send({
+            message: "User signed up successfully!",
+            publicKey: publicKey
+        })
+        } catch (err) {
+           console.log(err)
+        }
+    }
+    else {
+      try{
+        console.log('user found in the system')
+        res.status(205).send({
+          message: "User name existed, Please try a new user name",
+        })
+      } catch (err) {
+        console.log(err)
+      }
+    }
 
 
 
@@ -243,12 +247,31 @@ app.post('/login', async (req: Request, res: Response) => {
         const t = JSON.parse(jsonObj);
         role = t.data.role;
         pvtKey = t.data.secretKey;
+        if((t.data.password != password) || (t.data.username != username))
+        {
+          console.log("Wrong username or Password")
+          res.status(205).send({message: "Wrong Username or Password"})
+        }
+        else
+        {
+          res.status(201).send({
+            message: "Login Successful",
+            role: role,
+            publicKey: PublicKey,
+            username: username,
+            secKey: pvtKey
+          })
+        }
+      }
+      else
+      {
+        res.status(205).send({message: "Unknown Error"})
       }
     } catch (err) {
       console.log(err)
     }
 
-    console.log("kkk ", role)
+    // console.log("kkk ", role)
     
     // try {
     //   const newUser = getUserInfo(req.body.publicKey,req.body.password);
@@ -259,20 +282,9 @@ app.post('/login', async (req: Request, res: Response) => {
     // } catch (error) {
     //   res.status(500).send({ message: 'LOG-IN Failed', error });
     // }
-    console.log(username)
+    // console.log(username)
 
-    res.status(201).send({
-      message: "Login Successful",
-      role: role,
-      publicKey: PublicKey,
-      username: username,
-      secKey: pvtKey
-
-    })
-
-
-    console.log("logInSuccesful")
-  });
+    });
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello from the backend!');
