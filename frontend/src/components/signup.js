@@ -51,7 +51,7 @@ const Signup = () => {
       } finally {
         setLoading(false); // Hide loader
       }
-    }, 30000); // 30-second delay
+    }, 10000); // 30-second delay
   };
 
   return (
