@@ -26,10 +26,11 @@ const DoctorIndex = () => {
     setActivePage(page); // Change the active page
   };
 
-  
+  // CODE for Updating Profile ####
       // Update Profile API call
   const handleUpdateProfile = async (event) => {
     event.preventDefault();
+    const form = event.target;
     const formData = new FormData(event.target);
     const data = {
       name: formData.get('full-name'),
@@ -48,12 +49,12 @@ const DoctorIndex = () => {
       });
       const result = await response.json();
       alert(result.message || 'Profile updated successfully!');
+      form.reset();
     } catch (error) {
       alert('Error updating profile: ' + error.message);
     }
   };
-
-    
+  
   let updateProfile_ = (
     <div style={{ width: '60%' }}>
       <h2>Update Profile</h2>
@@ -82,9 +83,13 @@ const DoctorIndex = () => {
       </form>
     </div>
   );
-  
+// CODE END for Updating Profile ####
+
+
+// CODE FOR ADDING MEDICATIONS ####
   const handleAddMedication = async (event) => {
     event.preventDefault();
+    const form = event.target;
     const formData = new FormData(event.target);
     const data = {
       patientName: formData.get('patientName'),
@@ -102,6 +107,7 @@ const DoctorIndex = () => {
       });
       const result = await response.json();
       alert(result.message || 'Medication Added successfully!');
+      form.reset();
     } catch (error) {
       alert('Error Adding Medication: ' + error.message);
     }
@@ -136,15 +142,10 @@ const DoctorIndex = () => {
       </form>
     </div>
   );
+// CODE END FOR ADDING MEDICATIONS ####
 
-  // const handleAccept = async () => {
-  //   try {
 
-  //   } catch (err) {
-
-  //   }
-  // }
-  
+// CODE FOR VIEWING MEDICATIONS ####
     // Fetch Medications
     const fetchMedications = async () => {
       try {
@@ -161,8 +162,8 @@ const DoctorIndex = () => {
   let ViewMedication = (
     <div>
       <button onClick={fetchMedications}>View Medication</button>
-      <h2>View Medications Page</h2>
-      <table className="table table-striped">
+      <h2>View Medications</h2>
+     { medications.length>0? ( <table className="table table-striped">
         <thead>
           <tr>
             <th>Patient Username</th>
@@ -183,11 +184,14 @@ const DoctorIndex = () => {
                   </tr>
                 ))}
           </tbody>
-      </table>
+      </table>) : (<p>No medications to display yet. Click on the View Medication Button</p>)
+     }
     </div>
   );
+// CODE END FOR VIEWING MEDICATIONS ####
 
-// Fetch Appointments
+
+// CODE FOR VIEWING APPOINTMENTS ####
 const ApproveAppointments = async () => {
   try {
     const response = await fetch(`http://localhost:5050/ApproveAppointments?publicKey=${pubKey}&username=${username}`);
@@ -283,9 +287,9 @@ async function RejectAppointmentAPI(appointment) {
 
 let ApproveAppoinment = (
   <div>
-    <h2>View Appointments</h2>
+    <center><h2>View Appointments</h2></center>
     <button onClick={ApproveAppointments}>View Appointments</button>
-    <div className="card-deck">
+    {approveAppointments.length>0? (<div className="card-deck">
       {approveAppointments.map((appointment, index) => ( // Iterate over appointments array
         <div className="card" style={{ width: '22rem' }} key={index}>
           <div className="card-body">
@@ -308,9 +312,10 @@ let ApproveAppoinment = (
           </div>
         </div>
       ))}
-    </div>
+    </div>):(<p>No appointments to display yet. Click on the <b>View Appointments</b> button to view appointments</p>)}
   </div>
 );
+
 
 // Function to handle the Accept button click
 function handleAccept(appointment) {
@@ -327,7 +332,9 @@ function handleReject(appointment) {
 }
 
 
-// ####code functionality for accept feature
+// CODE END FOR VIEWING APPOINTMENTS ####
+
+
   
 
   

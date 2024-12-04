@@ -68,7 +68,7 @@ const PatientIndex = () => {
           </tbody>
         </table>
       ) : (
-        <p>No appointments to display yet.</p> // Placeholder for empty data
+        <p>No appointments to display yet. Click on the <b>View Appointments</b> button to view appointments</p> // Placeholder for empty data
       )}
 
     </div>
@@ -118,7 +118,7 @@ const PatientIndex = () => {
           </tbody>
         </table>
       ) : (
-        <p>No medications to display yet.</p> // Placeholder for empty data
+        <p>No medications to display yet. Click on the <b>View Medications</b> button to view medications</p> // Placeholder for empty data
       )}
 
       </div>

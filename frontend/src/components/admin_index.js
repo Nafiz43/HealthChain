@@ -16,6 +16,8 @@ const AdminIndex = () => {
     setActivePage(page); // Change the active page
   };
 
+
+// ### CODE FOR UPDATE PROFILE ####
   const handleUpdateProfile = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -41,13 +43,6 @@ const AdminIndex = () => {
     }
   };
 
-
-
-
-  let welcome = (
-    <h2>Welcome to Admin Dashboard</h2>
-  )
-    
   let updateProfile_ = (
     <div style={{ width: '60%' }}>
       <h2>Update Profile</h2>
@@ -76,8 +71,17 @@ const AdminIndex = () => {
       </form>
     </div>
   );
+// ### CODE END FOR UPDATE PROFILE ####
 
-  
+
+
+  let welcome = (
+    <h2>Welcome to Admin Dashboard</h2>
+  )
+    
+
+// ### CODE FOR VIEW Patients ####
+
   const fetchPatients = async () => {
     try {
       const response = await fetch('http://localhost:5050/viewPatients');
@@ -91,8 +95,8 @@ const AdminIndex = () => {
   let ViewPatientInfo = (
     <div>
       <button onClick={fetchPatients}>View Patients</button>
-      <h2>View Patients Info</h2>
-      <table className="table table-striped" style={{ width: '100%' }}>
+      <center><h2>View Patients Info</h2></center>
+      {patients.length>0? (<table className="table table-striped" style={{ width: '100%' }}>
         <thead>
           <tr>
             <th>UserName</th>
@@ -113,9 +117,12 @@ const AdminIndex = () => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table>):(<p>No Patient profile to display yet. Click on the <b>View Patient Profile</b> button to view the registered patients</p>)}
     </div>
   );
+// ### CODE END FOR VIEW Patients ####
+
+// ### CODE FOR VIEW DOCTORS ####
 
   const fetchDoctors = async () => {
     try {
@@ -130,8 +137,8 @@ const AdminIndex = () => {
   let ViewDoctorInfo = (
     <div>
       <button onClick={fetchDoctors}>View Doctors</button> {/* Correct trigger */}
-      <h2>View Doctors Info</h2>
-      <table className="table table-striped" style={{ width: '100%' }}>
+      <center><h2>View Doctors Info</h2></center>
+      {doctors.length>0? (<table className="table table-striped" style={{ width: '100%' }}>
         <thead>
           <tr>
             <th>UserName</th>
@@ -152,10 +159,10 @@ const AdminIndex = () => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table>):(<p>No Doctor profile to display yet. Click on the <b>View Doctor Profile</b> button to view the registered doctors</p> )}
     </div>
   );
-  
+// ### CODE END FOR VIEW DOCTORS ####
 
   const renderContent = () => {
     // Render content based on active page
