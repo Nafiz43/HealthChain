@@ -30,14 +30,33 @@ const PatientIndex = () => {
   /// CODE for VIEWING APPOINTMENTS ####
    // Fetch Appointments
    const fetchAppointments = async () => {
+    setLoading(true); 
+    setTimeout(async () => {
     try {
-      const response = await fetch(`http://localhost:5050/PatientViewAppointments?publicKey=${pubKey}`);
-      const data = await response.json();
-      console.log("lllkl ",data)
-      setAppointments(data.appointments || []);
+      try {
+        const response = await fetch(`http://localhost:5050/PatientViewAppointments?publicKey=${pubKey}`);
+        const data = await response.json();
+        console.log("Data Length Printing: ",data.appointments.length)
+        console.log("lllkl ",data)
+        setAppointments(data.appointments || []);
+        
+      
+        if(data.appointments.length <= 0)
+        {
+          alert("No Appointments Data in HealthChain");
+        }
+        
+      } catch (error) {
+        console.error('Error fetching appointments:', error);
+      }
     } catch (error) {
-      console.error('Error fetching appointments:', error);
+
+    } finally {
+      setLoading(false); 
     }
+  }, 10000); 
+
+    
   };
 
   let ViewAppointment = (
@@ -71,6 +90,12 @@ const PatientIndex = () => {
         <p>No appointments to display yet. Click on the <b>View Appointments</b> button to view appointments</p> // Placeholder for empty data
       )}
 
+      {loading && ( // Loader overlay
+        <div className="loader-overlay">
+          <div className="loader"></div>
+        </div>
+      )}
+
     </div>
   );
   /// CODE END for VIEWING APPOINTMENTS ####
@@ -79,18 +104,35 @@ const PatientIndex = () => {
   /// CODE for VIEWING MEDICATIONS ####
     // Fetch Medications
     const fetchMedications = async () => {
+      setLoading(true); 
+      setTimeout(async () => {
       try {
-        const response = await fetch(`http://localhost:5050/PatientViewMedications?publicKey=${pubKey}&username=${username}`);
-        const data = await response.json();
-        setMedications(data.medications || []);
+        try {
+          const response = await fetch(`http://localhost:5050/PatientViewMedications?publicKey=${pubKey}&username=${username}`);
+          const data = await response.json();
+          setMedications(data.medications || []);
+          if(data.medications.length <= 0)
+            {
+              alert("No Medications Data in HealthChain");
+            }
+  
+        } catch (error) {
+          console.error('Error fetching medications:', error);
+        }
       } catch (error) {
-        console.error('Error fetching medications:', error);
+
+      } finally {
+        setLoading(false); 
       }
+    }, 10000); 
+
+
+
     };
 
     let viewMedication = (
       <div>
-        <button onClick={fetchMedications}>View Medications</button>
+        <button onClick={fetchMedications}>View Received Medications</button>
   
         <center><h2>Medications</h2></center>
 
@@ -119,6 +161,11 @@ const PatientIndex = () => {
         </table>
       ) : (
         <p>No medications to display yet. Click on the <b>View Medications</b> button to view medications</p> 
+      )}
+       {loading && ( // Loader overlay
+        <div className="loader-overlay">
+          <div className="loader"></div>
+        </div>
       )}
 
       </div>
@@ -232,30 +279,42 @@ const PatientIndex = () => {
       // Update Profile API call
   const handleUpdateProfile = async (event) => {
     event.preventDefault();
-    const form = event.target;
-    const formData = new FormData(event.target);
-    const data = {
-      name: formData.get('full-name'),
-      dob: formData.get('dob'),
-      ssn: formData.get('ssn'),
-      phone: formData.get('phone-number'),
-      email: formData.get('email'),
-    };
-    // alert(formData.get('phone-number'))
-    console.log(data)
-
+    setLoading(true); 
+    setTimeout(async () => {
     try {
-      const response = await fetch(`http://localhost:5050/UpdateProfile?publicKey=${pubKey}&secKey=${secKey}&username=${username}&role=${role}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      const result = await response.json();
-      alert(result.message || 'Profile updated successfully!');
-      form.reset();
+      const form = event.target;
+      const formData = new FormData(event.target);
+      const data = {
+        name: formData.get('full-name'),
+        dob: formData.get('dob'),
+        ssn: formData.get('ssn'),
+        phone: formData.get('phone-number'),
+        email: formData.get('email'),
+      };
+      // alert(formData.get('phone-number'))
+      console.log(data)
+
+      try {
+        const response = await fetch(`http://localhost:5050/UpdateProfile?publicKey=${pubKey}&secKey=${secKey}&username=${username}&role=${role}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const result = await response.json();
+        alert(result.message || 'Profile updated successfully!');
+        form.reset();
+      } catch (error) {
+        alert('Error updating profile: ' + error.message);
+      }
     } catch (error) {
-      alert('Error updating profile: ' + error.message);
+
+    } finally {
+      setLoading(false); 
     }
+  }, 10000); 
+
+
+    
   };
 
   let updateProfile_ = (
@@ -320,6 +379,7 @@ const PatientIndex = () => {
       {/* Top Navigation Bar */}
       <div className="top-navbar">
         <div className="app-name">EduHealthChain</div>
+        <p style={{fontSize: '18px'}}><b>PATIENT</b></p>
           <Logout/>
       </div>
       
