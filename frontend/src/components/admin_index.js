@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is imported
 import Logout  from './logout';
+import { redirect, useLocation } from 'react-router-dom';
 
 import '../styles/dashboard.css';
 
@@ -10,68 +11,99 @@ const AdminIndex = () => {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(false); // New loading state
 
-
+  const location = useLocation();
+  let msg;
+  let pubKey = location.state.publicKey;
+  let username = location.state.username;
+  let secKey = location.state.secretKey;
+  let role = location.state.role;
+  console.log("LLL, ", location.state)
+  console.log("ll ", pubKey)
 
   const handleNavigation = (page) => {
     setActivePage(page); // Change the active page
   };
 
 
-// ### CODE FOR UPDATE PROFILE ####
-  const handleUpdateProfile = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const data = {
-      name: formData.get('full-name'),
-      dob: formData.get('dob'),
-      ssn: formData.get('ssn'),
-      phone: formData.get('phone-number'),
-      email: formData.get('email'),
-    };
-    alert(formData.get('phone-number'))
+/// CODE FOR UPDATING PROFILE #####
+      // Update Profile API call
+      const handleUpdateProfile = async (event) => {
+        event.preventDefault();
+        setLoading(true); 
+        setTimeout(async () => {
+        try {
+          const form = event.target;
+          const formData = new FormData(event.target);
+          const data = {
+            name: formData.get('full-name'),
+            dob: formData.get('dob'),
+            ssn: formData.get('ssn'),
+            phone: formData.get('phone-number'),
+            email: formData.get('email'),
+          };
+          // alert(formData.get('phone-number'))
+          console.log(data)
+    
+          try {
+            const response = await fetch(`http://localhost:5050/UpdateProfile?publicKey=${pubKey}&secKey=${secKey}&username=${username}&role=${role}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            });
+            const result = await response.json();
+            alert(result.message || 'Profile updated successfully!');
+            form.reset();
+          } catch (error) {
+            alert('Error updating profile: ' + error.message);
+          }
+        } catch (error) {
+    
+        } finally {
+          setLoading(false); 
+        }
+      }, 30000); 
+    
+    
+        
+      };
+    
+      let updateProfile_ = (
+        <div style={{ width: '60%' }}>
+          <h2>Update Profile</h2>
+          <form className="appointment-form"  onSubmit={handleUpdateProfile}>
+            <div className="form-group" >
+              <label htmlFor="full-name">Full Name</label>
+              <input type="text" className="form-control" id="full-name" name='full-name' placeholder="Enter your full name" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="dob">Date of Birth</label>
+              <input type="date" className="form-control" id="dob" name="dob"/>
+            </div>
+            <div className="form-group">
+              <label htmlFor="ssn">SSN</label>
+              <input type="text" className="form-control" id="ssn" placeholder="Enter your SSN" name="ssn" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="phoneNumber">Phone Number</label>
+              <input type="text" className="form-control" id="phone-number" name="phone-number" placeholder="Enter your phone number" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input type="email" className="form-control" id="email" name="email" placeholder="Enter your email" />
+            </div>
+            <button type="submit" className="btn btn-primary">Update Profile</button>
+          </form>
 
-    try {
-      const response = await fetch('http://localhost:5050/UpdateProfile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      const result = await response.json();
-      alert(result.message || 'Profile updated successfully!');
-    } catch (error) {
-      alert('Error updating profile: ' + error.message);
-    }
-  };
+          {loading && ( // Loader overlay
+          <div className="loader-overlay">
+            <div className="loader"></div>
+          </div>
+        )}
 
-  let updateProfile_ = (
-    <div style={{ width: '60%' }}>
-      <h2>Update Profile</h2>
-      <form className="appointment-form"  onSubmit={handleUpdateProfile}>
-        <div className="form-group" >
-          <label htmlFor="full-name">Full Name</label>
-          <input type="text" className="form-control" id="full-name" name='full-name' placeholder="Enter your full name" />
         </div>
-        <div className="form-group">
-          <label htmlFor="dob">Date of Birth</label>
-          <input type="date" className="form-control" id="dob" name="dob"/>
-        </div>
-        <div className="form-group">
-          <label htmlFor="ssn">SSN</label>
-          <input type="text" className="form-control" id="ssn" placeholder="Enter your SSN" name="ssn" />
-        </div>
-        <div className="form-group">
-          <label htmlFor="phoneNumber">Phone Number</label>
-          <input type="text" className="form-control" id="phone-number" name="phone-number" placeholder="Enter your phone number" />
-        </div>
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input type="email" className="form-control" id="email" name="email" placeholder="Enter your email" />
-        </div>
-        <button type="submit" className="btn btn-primary">Update Profile</button>
-      </form>
-    </div>
-  );
-// ### CODE END FOR UPDATE PROFILE ####
+      );
+    /// CODE END FOR UPDATING PROFILE #####
+    
 
 
 
@@ -83,13 +115,27 @@ const AdminIndex = () => {
 // ### CODE FOR VIEW Patients ####
 
   const fetchPatients = async () => {
+    setLoading(true); 
+    setTimeout(async () => {
     try {
-      const response = await fetch('http://localhost:5050/viewPatients');
-      const data = await response.json();
-      setPatients(data.patients || []); // Store patients in the state
+      try {
+        const response = await fetch('http://localhost:5050/viewPatients');
+        const data = await response.json();
+        setPatients(data.patients || []); // Store patients in the state
+        if(data.patients.length<=0)
+        {
+          alert("No Registered Patients in HealthChain")
+        }
+      } catch (error) {
+        console.error('Error fetching Patient Info:', error);
+      }
     } catch (error) {
-      console.error('Error fetching Patient Info:', error);
+        console.log(error)
+    } finally {
+      setLoading(false); 
     }
+  }, 30000); 
+
   };
   
   let ViewPatientInfo = (
@@ -118,6 +164,11 @@ const AdminIndex = () => {
           ))}
         </tbody>
       </table>):(<p>No Patient profile to display yet. Click on the <b>View Patient Profile</b> button to view the registered patients</p>)}
+      {loading && ( // Loader overlay
+        <div className="loader-overlay">
+          <div className="loader"></div>
+        </div>
+      )}
     </div>
   );
 // ### CODE END FOR VIEW Patients ####
@@ -125,13 +176,28 @@ const AdminIndex = () => {
 // ### CODE FOR VIEW DOCTORS ####
 
   const fetchDoctors = async () => {
+    setLoading(true); 
+    setTimeout(async () => {
     try {
-      const response = await fetch('http://localhost:5050/viewDoctors');
-      const data = await response.json();
-      setDoctors(data.doctors || []); // Update doctors state with fetched data
+      try {
+        const response = await fetch('http://localhost:5050/viewDoctors');
+        const data = await response.json();
+        if(data.doctors.length<=0)
+        {
+          alert("No Registered Doctor in HealthChain");
+        }
+        setDoctors(data.doctors || []); // Update doctors state with fetched data
+      } catch (error) {
+        console.error('Error fetching Doctors Info:', error);
+      }
     } catch (error) {
-      console.error('Error fetching Doctors Info:', error);
+        console.log(error)
+    } finally {
+      setLoading(false); 
     }
+  }, 30000); 
+
+
   };
   
   let ViewDoctorInfo = (
@@ -160,6 +226,11 @@ const AdminIndex = () => {
           ))}
         </tbody>
       </table>):(<p>No Doctor profile to display yet. Click on the <b>View Doctor Profile</b> button to view the registered doctors</p> )}
+      {loading && ( // Loader overlay
+        <div className="loader-overlay">
+          <div className="loader"></div>
+        </div>
+      )}
     </div>
   );
 // ### CODE END FOR VIEW DOCTORS ####
@@ -185,6 +256,7 @@ const AdminIndex = () => {
       {/* Top Navigation Bar */}
       <div className="top-navbar">
         <div className="app-name">EduHealthChain</div>
+        <p style={{fontSize: '18px'}}><b>ADMIN</b></p>
         <Logout/>
         </div>
       
