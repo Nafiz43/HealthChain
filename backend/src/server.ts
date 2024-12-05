@@ -88,6 +88,8 @@ async function getUserInfo(PublicKey: string, username: string) {
 
 async function getRoleBasedList(role: String) {
     let allTransactions = await resilientDBClient.getAllTransactions();
+    console.log(allTransactions)
+    
     let roleBasedList = [];
     let updateTransactions = [];
     for (let i = 0; i < allTransactions.length; i++) {
@@ -363,6 +365,7 @@ app.get('/PatientViewAppointments', async (req, res) => {
         }
     }
     res.json({ appointments: appointments });
+
   } catch (err) {
     console.log(err)
   }
