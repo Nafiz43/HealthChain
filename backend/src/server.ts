@@ -6,7 +6,8 @@ import { emit } from 'process';
 import { timeEnd } from 'console';
 
 const app = express();
-const port = 5050;
+const host = process.env.HOST ?? 'localhost';
+const port = Number(process.env.PORT ?? 5050);
 
 app.use(cors());
 //app.use(cors());  // This allows requests from all origins
@@ -292,8 +293,8 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello from the backend!');
 });
 
-app.listen(port, () => {
-  console.log(`Backend is running at http://localhost:${port}`);
+app.listen(port, host, () => {
+  console.log(`Backend is running at http://${host}:${port}`);
 });
 
 
@@ -368,8 +369,7 @@ app.get('/PatientViewAppointments', async (req, res) => {
           acc_rej.push(json_tx_asset.data);
         }
     }
-
-    let difference = appointments.filter(
+ let difference = appointments.filter(
       aItem => !acc_rej.some(bItem => 
         aItem.username === bItem.username && 
         aItem.time === bItem.time && 
