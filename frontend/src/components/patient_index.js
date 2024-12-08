@@ -34,7 +34,7 @@ const PatientIndex = () => {
     setTimeout(async () => {
     try {
       try {
-        const response = await fetch(`http://localhost:5050/PatientViewAppointments?publicKey=${pubKey}`);
+        const response = await fetch(`${process.env.REACT_APP_BACKEND}/PatientViewAppointments?publicKey=${pubKey}`);
         const data = await response.json();
         console.log("Data Length Printing: ",data.appointments.length)
         console.log("lllkl ",data)
@@ -108,7 +108,7 @@ const PatientIndex = () => {
       setTimeout(async () => {
       try {
         try {
-          const response = await fetch(`http://localhost:5050/PatientViewMedications?publicKey=${pubKey}&username=${username}`);
+          const response = await fetch(`${process.env.REACT_APP_BACKEND}/PatientViewMedications?publicKey=${pubKey}&username=${username}`);
           const data = await response.json();
           setMedications(data.medications || []);
           if(data.medications.length <= 0)
@@ -194,7 +194,7 @@ const PatientIndex = () => {
           console.log(secKey)
           
           try {
-            const response = await fetch(`http://localhost:5050/bookAppointment?publicKey=${pubKey}&secKey=${secKey}&username=${username}`, {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND}/bookAppointment?publicKey=${pubKey}&secKey=${secKey}&username=${username}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(data),
@@ -295,7 +295,7 @@ const PatientIndex = () => {
       console.log(data)
 
       try {
-        const response = await fetch(`http://localhost:5050/UpdateProfile?publicKey=${pubKey}&secKey=${secKey}&username=${username}&role=${role}`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND}/UpdateProfile?publicKey=${pubKey}&secKey=${secKey}&username=${username}&role=${role}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),

@@ -30,7 +30,7 @@ const Signup = () => {
     // Simulate a delay for the request (30 seconds)
     setTimeout(async () => {
       try {
-        const response = await fetch('http://localhost:5050/signup', {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND}/signup`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

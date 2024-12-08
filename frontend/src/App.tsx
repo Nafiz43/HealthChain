@@ -13,7 +13,7 @@ function App() {
   const [isLogin, setIsLogin] = useState(true);  // Manage whether to show Login or Signup form
 
   useEffect(() => {
-    fetch('http://localhost:5050') // Backend running on port 5050
+    fetch(`${process.env.REACT_APP_BACKEND}`) // Backend running on port 5050
       .then(response => response.text())
       .then(data => setMessage(data));
   }, []);

@@ -45,7 +45,7 @@ const AdminIndex = () => {
           console.log(data)
     
           try {
-            const response = await fetch(`http://localhost:5050/UpdateProfile?publicKey=${pubKey}&secKey=${secKey}&username=${username}&role=${role}`, {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND}/UpdateProfile?publicKey=${pubKey}&secKey=${secKey}&username=${username}&role=${role}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(data),
@@ -119,7 +119,7 @@ const AdminIndex = () => {
     setTimeout(async () => {
     try {
       try {
-        const response = await fetch('http://localhost:5050/viewPatients');
+        const response = await fetch('${process.env.REACT_APP_BACKEND}/viewPatients');
         const data = await response.json();
         setPatients(data.patients || []); // Store patients in the state
         if(data.patients.length<=0)
@@ -180,7 +180,7 @@ const AdminIndex = () => {
     setTimeout(async () => {
     try {
       try {
-        const response = await fetch('http://localhost:5050/viewDoctors');
+        const response = await fetch(`${process.env.REACT_APP_BACKEND}/viewDoctors`);
         const data = await response.json();
         if(data.doctors.length<=0)
         {
