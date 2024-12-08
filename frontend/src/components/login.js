@@ -37,7 +37,7 @@ const Login = () => {
     // Simulate a delay before making the request (5 seconds)
     setTimeout(async () => {
       try {
-        const response = await fetch('http://localhost:5050/login', {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND}/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

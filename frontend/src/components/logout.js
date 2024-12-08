@@ -38,7 +38,7 @@ const navigate = useNavigate()
 
     // Send POST request to backend
     try {
-      const response = await fetch('http://localhost:5050/logout', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND}/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

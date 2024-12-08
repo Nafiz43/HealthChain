@@ -46,7 +46,7 @@ const DoctorIndex = () => {
           console.log(data)
     
           try {
-            const response = await fetch(`http://localhost:5050/UpdateProfile?publicKey=${pubKey}&secKey=${secKey}&username=${username}&role=${role}`, {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND}/UpdateProfile?publicKey=${pubKey}&secKey=${secKey}&username=${username}&role=${role}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(data),
@@ -123,7 +123,7 @@ const DoctorIndex = () => {
         alert(formData.get('patientName'))
         
         try {
-          const response = await fetch(`http://localhost:5050/addMedication?publicKey=${pubKey}&username=${username}&secretKey=${secKey}`, {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND}/addMedication?publicKey=${pubKey}&username=${username}&secretKey=${secKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
@@ -187,7 +187,7 @@ const DoctorIndex = () => {
       setTimeout(async () => {
       try {
         try {
-          const response = await fetch(`http://localhost:5050/DoctorViewMedications?publicKey=${pubKey}&username=${username}`);
+          const response = await fetch(`${process.env.REACT_APP_BACKEND}/DoctorViewMedications?publicKey=${pubKey}&username=${username}`);
           const data = await response.json();
           if(data.medications<=0)
           {
@@ -252,7 +252,7 @@ const ApproveAppointments = async () => {
   setTimeout(async () => {
   try {
     try {
-      const response = await fetch(`http://localhost:5050/ApproveAppointments?publicKey=${pubKey}&username=${username}`);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND}/ApproveAppointments?publicKey=${pubKey}&username=${username}`);
       const data = await response.json();
       setApproveAppointments(data.appointments || []); // Fixed the key to match the backend
       if(data.appointments.length<=0)
@@ -304,7 +304,7 @@ async function AcceptAppointmentAPI(appointment) {
   setTimeout(async () => {
   try {
     try {
-      const response = await fetch(`http://localhost:5050/accept-appointment?publicKey=${pubKey}&username=${username}&secKey=${secKey}`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND}/accept-appointment?publicKey=${pubKey}&username=${username}&secKey=${secKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -322,7 +322,7 @@ async function AcceptAppointmentAPI(appointment) {
       const data = await response.json();
       console.log('Appointment approved:', data);
       if(response.status === 201) {
-        redirect(`http://localhost:5050/ApproveAppointments?publicKey=${pubKey}&username=${username}`)
+        redirect(`${process.env.REACT_APP_BACKEND}/ApproveAppointments?publicKey=${pubKey}&username=${username}`)
       }
     } catch (error) {
       console.error('Error approving appointment:', error);
@@ -343,7 +343,7 @@ async function RejectAppointmentAPI(appointment) {
   setTimeout(async () => {
   try {
     try {
-      const response = await fetch(`http://localhost:5050/reject-appointment?publicKey=${pubKey}&username=${username}&secretKey=${secKey}`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND}/reject-appointment?publicKey=${pubKey}&username=${username}&secretKey=${secKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -361,7 +361,7 @@ async function RejectAppointmentAPI(appointment) {
       const data = await response.json();
       console.log('Appointment rejected:', data);
       if(response.status === 201) {
-        redirect(`http://localhost:5050/ApproveAppointments?publicKey=${pubKey}&username=${username}`)
+        redirect(`${process.env.REACT_APP_BACKEND}/ApproveAppointments?publicKey=${pubKey}&username=${username}`)
       }
     } catch (error) {
       console.error('Error REJECTING appointment:', error);
@@ -420,14 +420,14 @@ let ApproveAppoinment = (
 function handleAccept(appointment) {
   alert(`Patient Username: ${appointment.username}\nTime: ${appointment.time}`);
   AcceptAppointmentAPI(appointment); 
-  redirect(`http://localhost:5050/ApproveAppointments?publicKey=${pubKey}&username=${username}`)
+  redirect(`${process.env.REACT_APP_BACKEND}/ApproveAppointments?publicKey=${pubKey}&username=${username}`)
 }
 
 
 function handleReject(appointment) {
   alert(`Patient Username: ${appointment.username}\nTime: ${appointment.time}`);
   RejectAppointmentAPI(appointment); 
-  redirect(`http://localhost:5050/ApproveAppointments?publicKey=${pubKey}&username=${username}`)
+  redirect(`${process.env.REACT_APP_BACKEND}/ApproveAppointments?publicKey=${pubKey}&username=${username}`)
 }
 
 
