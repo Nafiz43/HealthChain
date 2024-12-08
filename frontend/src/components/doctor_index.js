@@ -473,16 +473,6 @@ let ApproveAppoinment = (
     <div className="loader"></div>
   </div>
 )}
-
-// =======
-//     </div>):(<p>No appointments to display yet. Click on the <b>View Appointments</b> button to view appointments</p>)}
-//     {loading && ( // Loader overlay
-//           <div className="loader-overlay">
-//             <div className="loader"></div>
-//           </div>
-//         )}
-// >>>>>>> master
-
   </div>
 );
 
