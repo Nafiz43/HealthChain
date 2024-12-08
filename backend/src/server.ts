@@ -353,19 +353,32 @@ app.get('/PatientViewAppointments', async (req, res) => {
   };
 
   try{
-    const transactions = await resilientDBClient.getFilteredTransactions(filter);
+    const transactions = await resilientDBClient.getAllTransactions();
     console.log(transactions)
     let appointments = []
+    let acc_rej = []
     for(let i = 0; i < transactions.length; i++) {
         let t = transactions[i];
         let tx_asset = t.asset.replace(/'/g, '"');
         let json_tx_asset = JSON.parse(tx_asset);
-        if(json_tx_asset.data.message == 'Appointment') {
+        if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.date) {
           console.log(json_tx_asset);
           appointments.push(json_tx_asset.data);
         }
+        if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.date && (json_tx_asset.data.status == 'Accepted' || json_tx_asset.data.status == 'Rejected')) {
+          acc_rej.push(json_tx_asset.data);
+        }
     }
-    res.json({ appointments: appointments });
+ let difference = appointments.filter(
+      aItem => !acc_rej.some(bItem => 
+        aItem.username === bItem.username && 
+        aItem.time === bItem.time && 
+        aItem.date === bItem.date &&
+        aItem.status === "Pending"
+      )
+    );
+    console.log("aaa ", difference)
+    res.json({ appointments: difference });
 
   } catch (err) {
     console.log(err)
@@ -375,11 +388,13 @@ app.get('/PatientViewAppointments', async (req, res) => {
 app.get('/PatientViewMedications', async (req, res) => {
   try {
     const user = req.query.username;
-    const filter = {
-      ownerPublicKey: req.query.publicKey?.toString() || "default-public-key"
-      // recipientPublicKey can also be specified here.
-    };
-    const transactions = await resilientDBClient.getFilteredTransactions(filter);
+    console.log(user)
+    // const filter = {
+    //   ownerPublicKey: req.query.publicKey?.toString() || "default-public-key"
+    //   // recipientPublicKey can also be specified here.
+    // };
+    const transactions = await resilientDBClient.getAllTransactions();
+    console.log("oo ", transactions)
     let docMed = [];
     for (let i = 0; i < transactions.length; i++) {
       let t = transactions[i];
@@ -536,50 +551,57 @@ app.get('/ApproveAppointments', async (req, res) => {
     const user = req.query.username;
     console.log('user ', user)
     const transactions = await resilientDBClient.getAllTransactions();
-    console.log("lll",transactions)
+    // console.log("lll",transactions)
     let docMed = [];
-    let users = [];
+    let pendingList = [];
+    let accept_reject_list = []
     for (let i = 0; i < transactions.length; i++) {
       let t = transactions[i];
 
       let tx_asset = t.asset.replace(/'/g, '"');
       let json_tx_asset = JSON.parse(tx_asset);
-      if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.doctor == user && json_tx_asset.data.status == "Pending") {
-        //console.log(json_tx_asset);
-        // json_tx_asset.data.date = await timestampToDate(json_tx_asset.data.timestamp);
-        // json_tx_asset.data.date = json_tx_asset.data.date.split(',')[0];
-        docMed.push(json_tx_asset.data);
-        users.push(json_tx_asset.data.username)
-      }
-
-      if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.doctor == user && json_tx_asset.data.status == "Accepted") {
-        //console.log(json_tx_asset);
-        // json_tx_asset.data.date = await timestampToDate(json_tx_asset.data.timestamp);
-        // json_tx_asset.data.date = json_tx_asset.data.date.split(',')[0];
-        docMed.push(json_tx_asset.data);
-        users.push(json_tx_asset.data.username)
-      }
-
-    }
-    let pending_list = []
-
-    for(let i = 0; i < users.length; i++) {
-        const patient = users[i];
-        const patientData = [];
-        for(let j = 0; j < docMed.length; j++) {
-            if(patient == docMed[i].username) {
-                patientData.push(docMed[i]);
-            }
+      //const pending_l = { username: json_tx_asset.data.user}
+      let acc_rej_l = {}
+      if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.doctor == user) {
+        const pending_l = { 
+          username: json_tx_asset.data.username,
+          time: json_tx_asset.data.time,
+          doctor: json_tx_asset.data.doctor,
+          publicKey: json_tx_asset.data.publicKey,
+          date: json_tx_asset.data.date
         }
-        const latest = patientData.reduce((max, obj) => (obj.timestamp > max.timestamp ? obj : max), patientData[0]);
-        pending_list.push(latest)
+        if(json_tx_asset.data.status == 'Pending') {
+          pendingList.push(pending_l);
+          docMed.push(json_tx_asset.data);
+        } else if(json_tx_asset.data.status == 'Accepted' || json_tx_asset.data.status == 'Rejected') {
+          accept_reject_list.push(pending_l);
+        }
+        // users.push(json_tx_asset.data.username)
+      }
+      //console.log('lkjh ', accept_reject_list)
+
     }
+    console.log('ppp ', pendingList)
+    console.log('llll ', accept_reject_list)
+    let difference = pendingList.filter(
+      aItem => !accept_reject_list.some(bItem => 
+        aItem.username === bItem.username && 
+        aItem.time === bItem.time && 
+        aItem.doctor === bItem.doctor
+      )
+    );
+    console.log('gfhj ', difference)
+    
+    let result = docMed.filter(
+      aItem => difference.some(bItem => 
+        aItem.username === bItem.username && 
+        aItem.time === bItem.time && 
+        aItem.doctor === bItem.doctor      
+      )
+    );
 
-    const pendingAppointments = pending_list.filter(appointment => appointment.status === 'pending');
-
-    console.log(users)
-    console.log('dd ', pendingAppointments);
-    res.json({ appointments: pendingAppointments});
+    console.log("rrr ",result);
+    res.status(201).send( {appointments: result});
   } catch (err) {
     console.log(err)
   }
@@ -608,12 +630,13 @@ app.get('/ApproveAppointments', async (req, res) => {
 // Approve Appointment API
 app.post('/accept-appointment', async (req, res) => {
   const info = req.body;
+  console.log('info ', info)
   const pubKey = req.query.publicKey;
   const doctor = req.query.username;
   const pvtKey = req.query.secKey;
   info.doctor = doctor;
   info.status = 'Accepted';
-  // info.publicKey = publicKey;
+  info.publicKey = pubKey;
 
   //console.log("updated profile")
   //console.log(updatedProfile)

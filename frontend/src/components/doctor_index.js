@@ -52,6 +52,7 @@ const DoctorIndex = () => {
               body: JSON.stringify(data),
             });
             const result = await response.json();
+            console.log(result)
             alert(result.message || 'Profile updated successfully!');
             form.reset();
           } catch (error) {
@@ -124,6 +125,7 @@ const DoctorIndex = () => {
         
         try {
           const response = await fetch(`${process.env.REACT_APP_BACKEND}/addMedication?publicKey=${pubKey}&username=${username}&secretKey=${secKey}`, {
+
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
@@ -187,6 +189,7 @@ const DoctorIndex = () => {
       setTimeout(async () => {
       try {
         try {
+
           const response = await fetch(`${process.env.REACT_APP_BACKEND}/DoctorViewMedications?publicKey=${pubKey}&username=${username}`);
           const data = await response.json();
           if(data.medications<=0)
@@ -304,6 +307,7 @@ async function AcceptAppointmentAPI(appointment) {
   setTimeout(async () => {
   try {
     try {
+
       const response = await fetch(`${process.env.REACT_APP_BACKEND}/accept-appointment?publicKey=${pubKey}&username=${username}&secKey=${secKey}`, {
         method: 'POST',
         headers: {
@@ -312,6 +316,7 @@ async function AcceptAppointmentAPI(appointment) {
         body: JSON.stringify({
           username: appointment.username,
           time: appointment.time,
+          date: appointment.date
         }),
       });
   
@@ -351,6 +356,7 @@ async function RejectAppointmentAPI(appointment) {
         body: JSON.stringify({
           username: appointment.username,
           time: appointment.time,
+          date: appointment.date
         }),
       });
   
@@ -376,21 +382,67 @@ async function RejectAppointmentAPI(appointment) {
 }
 
 
+// let ApproveAppoinment = (
+//   <div>
+//     <center><h2>View Appointments</h2></center>
+//     <button onClick={ApproveAppointments}>View Appointments</button>
+//     {approveAppointments.length>0? (<div className="card-deck">
+//       {approveAppointments.map((appointment, index) => ( // Iterate over appointments array
+//         <div className="card" style={{ width: '22rem' }} key={index}>
+//           <div className="card-body">
+//             <h5 className="card-title">Appointment {index + 1}</h5>
+//             <p className="card-text"><strong>Date:</strong> {appointment.date}</p>
+//             <p className="card-text"><strong>Patient Username:</strong> {appointment.username}</p>
+//             <p className="card-text"><strong>Time:</strong> {appointment.time}</p>
+//             <p className="card-text"><strong>Reason:</strong> {appointment.reason}</p>
+//             <div className="btn-group" role="group" aria-label="Appointment Actions">
+//               <button
+//                 type="button"
+//                 className="btn btn-success"
+//                 style={{ marginLeft: '40%', marginRight: '20px' }}
+//                 onClick={() => handleAccept(appointment)}
+//               >
+//                 Accept
+//               </button>
+//               <button type="button" className="btn btn-danger" onClick={() => handleReject(appointment)}>Reject</button>
+//             </div>
+//           </div>
+//         </div>
+//       ))}
+//     </div>):(<p>No appointments to display yet. Click on the <b>View Appointments</b> button to view appointments</p>)}
+//     {loading && ( // Loader overlay
+//           <div className="loader-overlay">
+//             <div className="loader"></div>
+//           </div>
+//         )}
+
+//   </div>
+// );
 
 
 let ApproveAppoinment = (
   <div>
-    <center><h2>View Appointments</h2></center>
-    <button onClick={ApproveAppointments}>View Appointments</button>
-    {approveAppointments.length>0? (<div className="card-deck">
-      {approveAppointments.map((appointment, index) => ( // Iterate over appointments array
-        <div className="card" style={{ width: '22rem' }} key={index}>
+<center><h2>View Appointments</h2></center>
+<button onClick={ApproveAppointments}>View Appointments</button>
+{approveAppointments.length > 0 ? (
+  <div className="card-deck-container">
+    <div className="card-deck">
+      {approveAppointments.map((appointment, index) => (
+        <div className="card" style={{ width: '22rem', marginBottom: '15px' }} key={index}>
           <div className="card-body">
             <h5 className="card-title">Appointment {index + 1}</h5>
-            <p className="card-text"><strong>Date:</strong> {appointment.date}</p>
-            <p className="card-text"><strong>Patient Username:</strong> {appointment.username}</p>
-            <p className="card-text"><strong>Time:</strong> {appointment.time}</p>
-            <p className="card-text"><strong>Reason:</strong> {appointment.reason}</p>
+            <p className="card-text">
+              <strong>Date:</strong> {appointment.date}
+            </p>
+            <p className="card-text">
+              <strong>Patient Username:</strong> {appointment.username}
+            </p>
+            <p className="card-text">
+              <strong>Time:</strong> {appointment.time}
+            </p>
+            <p className="card-text">
+              <strong>Reason:</strong> {appointment.reason}
+            </p>
             <div className="btn-group" role="group" aria-label="Appointment Actions">
               <button
                 type="button"
@@ -400,17 +452,36 @@ let ApproveAppoinment = (
               >
                 Accept
               </button>
-              <button type="button" className="btn btn-danger" onClick={() => handleReject(appointment)}>Reject</button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={() => handleReject(appointment)}
+              >
+                Reject
+              </button>
             </div>
           </div>
         </div>
       ))}
-    </div>):(<p>No appointments to display yet. Click on the <b>View Appointments</b> button to view appointments</p>)}
-    {loading && ( // Loader overlay
-          <div className="loader-overlay">
-            <div className="loader"></div>
-          </div>
-        )}
+    </div>
+  </div>
+) : (
+  <p>No appointments to display yet. Click on the <b>View Appointments</b> button to view appointments</p>
+)}
+{loading && (
+  <div className="loader-overlay">
+    <div className="loader"></div>
+  </div>
+)}
+
+// =======
+//     </div>):(<p>No appointments to display yet. Click on the <b>View Appointments</b> button to view appointments</p>)}
+//     {loading && ( // Loader overlay
+//           <div className="loader-overlay">
+//             <div className="loader"></div>
+//           </div>
+//         )}
+// >>>>>>> master
 
   </div>
 );

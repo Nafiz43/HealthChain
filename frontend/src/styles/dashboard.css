@@ -151,3 +151,23 @@
     transform: scale(1.05);
   }
   
+
+  .card-deck-container {
+    max-height: 75vh; /* Dynamic height: 60% of the viewport height */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid #ccc; /* Optional: Border for clarity */
+    padding: 10px; /* Optional: Padding for visual spacing */
+  }
+  
+  @media (max-width: 768px) {
+    .card-deck-container {
+      max-height: 50vh; /* Adjust height for smaller screens */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .card-deck-container {
+      max-height: 40vh; /* Further reduce height for very small screens */
+    }
+  }
+  
