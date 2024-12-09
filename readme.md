@@ -70,26 +70,57 @@
     python3 app.py
 ```
 
-# Running the app
-Step 1:
-Ensure you have nodejs installed in your system
+# Running the App
 
-Step 2:
-Install npm-bootstrap by the following command:
-`npm install bootstrap`
+## Prerequisites
+- Ensure you have Node.js and npm installed
+- Verify previous setup steps for ResilientDB, Crow HTTP server, and GraphQL server are completed
 
-For running the front-end server:
-run the following command while being inside the `frontend` directory:
-`npm start`
+## Frontend Setup
+1. Navigate to the frontend directory:
+```bash
+cd frontend
+```
 
-For running the backend server:
-run the following command while being inside the `backend` directory:
-`npm run dev`
+2. Install bootstrap:
+```bash
+npm install bootstrap
+```
 
-You need to make sure that the CrowHTTP server is working. For doing that run the following while being inside `ResilientDB-GraphQL` directory:
-`bazel-bin/service/http_server/crow_service_main service/tools/config/interface/client.config service/http_server/server_config.config`
+3. Start the frontend server:
+```bash
+npm start
+```
 
-Use the following tutorial to setup resilientDb and CrowHTTP Server: https://blog.resilientdb.com/2023/09/21/ResVault.html
+## Backend Setup
+1. Navigate to the backend directory:
+```bash
+cd backend
+```
 
-Shoot an email to the following email address, if you face any issues:
-Nafiz Imtiaz Khan  - nikhan@ucdavis.edu
+2. Start the backend server:
+```bash
+npm run dev
+```
+
+## Crow HTTP Server
+Before running the entire application, ensure the Crow HTTP server is running:
+
+1. Navigate to the ResilientDB-GraphQL directory:
+```bash
+cd ResilientDB-GraphQL
+```
+
+2. Start the Crow HTTP server:
+```bash
+bazel-bin/service/http_server/crow_service_main service/tools/config/interface/client.config service/http_server/server_config.config
+```
+
+## Troubleshooting
+- If you encounter issues, refer to the tutorial: [ResilientDB Blog Post](https://blog.resilientdb.com/2023/09/21/ResVault.html)
+- For further assistance, contact:
+  - Nafiz Imtiaz Khan (nikhan@ucdavis.edu)
+
+## Notes
+- Ensure all servers (Crow HTTP, Frontend, Backend) are running simultaneously
+- Check network configurations and firewall settings if connection issues arise
