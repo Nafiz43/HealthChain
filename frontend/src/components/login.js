@@ -78,77 +78,84 @@ const Login = () => {
       }
     }, 10000); // Delay for 5 seconds
   };
-  
 
   return (
-    <div className="login-container">
-      {msg && pubKey && (
-        <div>
-          <h3>{msg}</h3>
-          <h3>Your public key is: {pubKey}</h3>
+    <div style={{ 
+      backgroundImage: 'url(bgd.png)', 
+      backgroundSize: 'cover', 
+      backgroundPosition: 'center', 
+      height: '100vh', 
+      marginTop: '-50px'
+    }}>
+      <div className="login-container"> 
+        {msg && pubKey && (
+          <div>
+            <h3 style={{ color: 'white' }}>{msg}</h3>
+            <h3 style={{ color: 'white' }}>Your public key is: <b style={{ color: 'red' }}>{pubKey}</b></h3>
+          </div>
+        )}
+        <nav className="navbar" style={{marginTop:'5%'}}>
+          <div className="navbar-brand">EduHealthChain</div>
+        </nav>
+        <div className="login-form" style={{ backgroundColor: 'rgba(255, 255, 255, 0.7)', padding: '20px', borderRadius: '8px' }}>
+          <center>
+            <h2>Login</h2>
+          </center>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="username">Username:</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="publicKey">Public Key:</label>
+              <input
+                type="text"
+                id="publicKey"
+                name="publicKey"
+                value={formData.publicKey}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password:</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div
+              className="form-group"
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                paddingLeft: '0%',
+              }}
+            >
+              <button className="button_login" type="submit">
+                Login
+              </button>
+            </div>
+          </form>
+          <p>{message}</p>
         </div>
-      )}
-      <nav className="navbar">
-        <div className="navbar-brand">EduHealthChain</div>
-      </nav>
-      <div className="login-form">
-        <center>
-          <h2>Login</h2>
-        </center>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="username">Username:</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
+        {loading && ( // Loader overlay
+          <div className="loader-overlay">
+            <div className="loader"></div>
           </div>
-          <div className="form-group">
-            <label htmlFor="publicKey">Public Key:</label>
-            <input
-              type="text"
-              id="publicKey"
-              name="publicKey"
-              value={formData.publicKey}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div
-            className="form-group"
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              paddingLeft: '4%',
-            }}
-          >
-            <button className="button_login" type="submit">
-              Login
-            </button>
-          </div>
-        </form>
-        <p>{message}</p>
+        )}
       </div>
-      {loading && ( // Loader overlay
-        <div className="loader-overlay">
-          <div className="loader"></div>
-        </div>
-      )}
     </div>
   );
 };
