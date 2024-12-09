@@ -17,7 +17,7 @@
 2. Then navigate inside the ResilientDB repo
 
 ```bash
-    cd resilientdb
+    cd resilientdb && git reset --hard 282fe2da315b9f5c3a5d020b652d44979b96a151
 ```
 
 3. Install dependencies:
@@ -43,7 +43,7 @@
 2. Then navigate inside the ResilientDBGraphQL directory: 
 
 ```bash
-    cd ResilientDB-GraphQL
+    cd ResilientDB-GraphQL && git reset --hard 88ed27d365fa25da3bbd7391dbb60808c5d2f635
 ```
 
 3. Install the Crow dependencies: 
