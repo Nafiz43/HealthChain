@@ -37,7 +37,7 @@ const PatientIndex = () => {
 // <<<<<<< dec6
 //         const response = await fetch(`http://localhost:5050/PatientViewAppointments?publicKey=${pubKey}`);
 // =======
-        const response = await fetch(`${process.env.REACT_APP_BACKEND}/PatientViewAppointments?publicKey=${pubKey}`);
+        const response = await fetch(`${process.env.REACT_APP_BACKEND}/PatientViewAppointments?publicKey=${pubKey}&username=${username}`);
 // >>>>>>> master
         const data = await response.json();
         console.log("Data Length Printing: ",data.appointments.length)

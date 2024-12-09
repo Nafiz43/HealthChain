@@ -351,7 +351,7 @@ app.get('/PatientViewAppointments', async (req, res) => {
     ownerPublicKey: req.query.publicKey?.toString() || "default-public-key"
     // recipientPublicKey can also be specified here.
   };
-
+  let username = req.query.username;
   try{
     const transactions = await resilientDBClient.getAllTransactions();
     console.log(transactions)
@@ -361,11 +361,11 @@ app.get('/PatientViewAppointments', async (req, res) => {
         let t = transactions[i];
         let tx_asset = t.asset.replace(/'/g, '"');
         let json_tx_asset = JSON.parse(tx_asset);
-        if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.date) {
+        if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.date && json_tx_asset.data.username == username) {
           console.log(json_tx_asset);
           appointments.push(json_tx_asset.data);
         }
-        if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.date && (json_tx_asset.data.status == 'Accepted' || json_tx_asset.data.status == 'Rejected')) {
+        if(json_tx_asset.data.message == 'Appointment' && json_tx_asset.data.date && json_tx_asset.data.username == username && (json_tx_asset.data.status == 'Accepted' || json_tx_asset.data.status == 'Rejected')) {
           acc_rej.push(json_tx_asset.data);
         }
     }
@@ -377,6 +377,7 @@ app.get('/PatientViewAppointments', async (req, res) => {
         aItem.status === "Pending"
       )
     );
+   // difference = [difference[0]]
     console.log("aaa ", difference)
     res.json({ appointments: difference });
 
