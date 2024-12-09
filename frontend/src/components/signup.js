@@ -55,11 +55,17 @@ const Signup = () => {
   };
 
   return (
-    <div className="login-container">
-      <nav className="navbar">
+    <div className="login-container" style={{ 
+      backgroundImage: 'url(bgd.png)', 
+      backgroundSize: 'cover', 
+      backgroundPosition: 'center', 
+      height: '100vh', 
+      marginTop: '0px'
+    }}>
+      <nav className="navbar" style={{marginTop:'5%'}}>
         <div className="navbar-brand">EduHealthChain</div>
       </nav>
-      <div className="signup-form">
+      <div className="signup-form" style={{ backgroundColor: 'rgba(255, 255, 255, 0.7)', padding: '20px', borderRadius: '8px' }}>
         <center>
           <h2>Signup</h2>
         </center>
